@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Box from "@material-ui/core/Box";
-
+import Message from "./Components/Message"
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
         paddingTop: theme.spacing(7),
     }
 }));
+const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world"];
 
 export default function ButtonAppBar() {
     const classes = useStyles();
@@ -46,153 +47,11 @@ export default function ButtonAppBar() {
 
 
                 <Grid item xs={9}>
-                    <Paper style={{
-                        height: '70vh', overflow: 'auto'
-                    }}>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...<List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                            <List>
-                                ...
-                            </List>
-                        </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List><List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List><List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
-                        <List>
-                            ...
-                            </List>
+                    <Paper style={{ height: '70vh', overflow: 'auto' }}>
+                        {elements.map((value, index) => {
+                            return <Message sender="Luca" body={value}></Message>
+                        })}
+
                     </Paper>
                     <Grid style={{ height: '30vh' }}>
                         <TextField
