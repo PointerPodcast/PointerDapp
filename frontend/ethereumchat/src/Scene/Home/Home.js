@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
     title: {
         flexGrow: 1,
     },
+    container: {
+        paddingTop: theme.spacing(7),
+    }
 }));
 
 export default function ButtonAppBar() {
@@ -31,42 +34,187 @@ export default function ButtonAppBar() {
                         </Typography>
                 </Toolbar>
             </AppBar>
-            <div style={{ marginTop: '80px' }}>
-                <Grid container spacing={3}>
-                    <Grid item xs={3}>
-                        <Container>
-                            <Button variant="contained" color="primary">
-                                Add Group
+            <Grid container spacing={3} className={classes.container}>
+                <Grid item xs={3}>
+                    <Container>
+                        <Button variant="contained" color="primary">
+                            Add Group
                             </Button>
 
-                        </Container>
-                    </Grid>
-
-
-                    <Grid item xs={9}>
-
-
-                        <Grid xs={3}>
-                            <TextField
-                                id="multiline-static"
-                                // label="New Message"
-                                fullWidth
-                                multiline
-                                rows="3"
-                                InputLabelProps={{
-                                    shrink: true
-                                }}
-                                placeholder="Start writing your message"
-                                className={classes.textField}
-                                margin="normal"
-                                style={{ position: 'absolute', }}
-                            />
-                        </Grid>
-
-
-                    </Grid>
+                    </Container>
                 </Grid>
-            </div >
+
+
+                <Grid item xs={9}>
+                    <Paper style={{
+                        height: '70vh', overflow: 'auto'
+                    }}>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...<List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                            <List>
+                                ...
+                            </List>
+                        </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List><List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List><List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                        <List>
+                            ...
+                            </List>
+                    </Paper>
+                    <Grid style={{ height: '30vh' }}>
+                        <TextField
+                            id="multiline-static"
+                            // label="New Message"
+                            fullWidth
+                            multiline
+                            rows="3"
+                            InputLabelProps={{
+                                shrink: true
+                            }}
+                            placeholder="Start writing your message"
+                            className={classes.textField}
+                            margin="normal"
+                        // style={{ position: 'absolute', }}
+                        />
+                    </Grid>
+
+
+                </Grid>
+            </Grid>
+
 
 
         </div >
