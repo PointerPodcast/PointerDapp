@@ -7,24 +7,26 @@ import Box from '@material-ui/core/Box';
 
 export default function Message(props) {
     return (
-        <Grid item xs={12} sm container >
-            <Grid item xs={1} container direction="column" style={{ paddingTop: 20, paddingLeft: 20 }}>
-                <Avatar>H</Avatar>
-            </Grid>
+        <Grid container spacing={2}>
+            <Grid item xs={12} style={{ padding: 20 }}>
+                <Grid container spacing={2}>
+                    <Grid item><Avatar>H</Avatar></Grid>
+                    <Grid item>
+                        <Typography component="div">
+                            <Box fontWeight="fontWeightMedium" fontSize={16}>
+                                {props.sender}
+                            </Box>
+                            <Box fontWeight="fontWeightRegular" fontSize={12}>
+                                {props.body}
+                            </Box>
+                        </Typography>
+                    </Grid>
 
 
-            <Grid item xs={9} container direction="column" style={{ padding: 20 }}>
-                <Grid item xs>
-                    <Typography component="div">
-                        <Box fontWeight="fontWeightMedium" fontSize={16}>
-                            {props.sender}
-                        </Box>
-                        <Box fontWeight="fontWeightRegular" fontSize={12}>
-                            {props.body}
-                        </Box>
-                    </Typography>
                 </Grid>
+
             </Grid>
+
         </Grid>
     );
 }

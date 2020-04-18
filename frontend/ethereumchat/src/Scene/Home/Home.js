@@ -9,10 +9,12 @@ import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Box from "@material-ui/core/Box";
 import Message from "./Components/Message"
+import useWindowDimensions from '../../Hooks/useWindowDimension';
+
+
+
 const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
+
 
     title: {
         flexGrow: 1,
@@ -21,11 +23,11 @@ const useStyles = makeStyles((theme) => ({
         paddingTop: theme.spacing(7),
     }
 }));
-const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world"];
+const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world"];
 
 export default function ButtonAppBar() {
     const classes = useStyles();
-
+    const { height, width } = useWindowDimensions();
     return (
         <div className={classes.root}>
             <AppBar>
@@ -35,7 +37,7 @@ export default function ButtonAppBar() {
                         </Typography>
                 </Toolbar>
             </AppBar>
-            <Grid container spacing={3} className={classes.container}>
+            <Grid container spacing={1} className={classes.container}>
                 <Grid item xs={3}>
                     <Container>
                         <Button variant="contained" color="primary">
@@ -46,33 +48,42 @@ export default function ButtonAppBar() {
                 </Grid>
 
 
-                <Grid item xs={9}>
-                    <Paper style={{ height: '70vh', overflow: 'auto' }}>
-                        {elements.map((value, index) => {
-                            return <Message sender="Luca" body={value}></Message>
-                        })}
+                <Grid item xs={9} spacing={3} >
+                    <Box >
+                        <Box height={height - 156} style={{ overflow: 'auto' }}>
+                            <Paper >
+                                {elements.map((value, _) => {
+                                    return <Message sender="Luca" body={value}></Message>
+                                })}
 
-                    </Paper>
-                    <Grid style={{ height: '30vh' }}>
-                        <TextField
-                            id="multiline-static"
-                            // label="New Message"
-                            fullWidth
-                            multiline
-                            rows="3"
-                            InputLabelProps={{
-                                shrink: true
-                            }}
-                            placeholder="Start writing your message"
-                            className={classes.textField}
-                            margin="normal"
-                        // style={{ position: 'absolute', }}
-                        />
-                    </Grid>
+                            </Paper>
+                        </Box>
+                        <Box>
+                            <Grid item>
+                                <TextField
+                                    id="multiline-static"
+                                    // label="New Message"
+                                    fullWidth
+                                    multiline
+                                    rows="2"
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    placeholder="Start writing your message"
+                                    className={classes.textField}
+                                    margin="normal"
+                                // style={{ position: 'absolute', }}
+                                />
+                            </Grid>
+                        </Box>
+                    </Box>
+
+
+
 
 
                 </Grid>
-            </Grid>
+            </Grid >
 
 
 
