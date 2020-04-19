@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { AppBar, Typography, List } from '@material-ui/core';
@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import Box from "@material-ui/core/Box";
 import Message from "./Components/Message"
 import useWindowDimensions from '../../Hooks/useWindowDimension';
-
+import Web3 from "web3";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -25,7 +25,22 @@ const useStyles = makeStyles((theme) => ({
 }));
 const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world"];
 
-export default function ButtonAppBar() {
+const Home = () => {
+    const [account, setAccount] = useState('Ciao');
+
+    async function fetchMyAccount() {
+        const web3 = new Web3('HTTP://127.0.0.1:8545')
+        const accounts = await web3.eth.getAccounts()
+        const network = await web3.eth.net.getNetworkType();
+        console.log(network)
+        console.log(accounts)
+        setAccount(accounts[0])
+    }
+
+    useEffect(() => {
+        fetchMyAccount()
+    });
+
     const classes = useStyles();
     const { height, width } = useWindowDimensions();
     return (
@@ -53,7 +68,7 @@ export default function ButtonAppBar() {
                         <Box height={height - 156} style={{ overflow: 'auto' }}>
                             <Paper >
                                 {elements.map((value, _) => {
-                                    return <Message sender="Luca" body={value}></Message>
+                                    return <Message sender={account} body={value}></Message>
                                 })}
 
                             </Paper>
@@ -62,7 +77,6 @@ export default function ButtonAppBar() {
                             <Grid item>
                                 <TextField
                                     id="multiline-static"
-                                    // label="New Message"
                                     fullWidth
                                     multiline
                                     rows="2"
@@ -90,3 +104,4 @@ export default function ButtonAppBar() {
         </div >
     );
 }
+export default Home;
