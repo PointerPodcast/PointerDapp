@@ -6,7 +6,7 @@ interface ITimeMachineChat{
     
     function setUsername(bytes32 _username) external virtual;
     
-    function getUsername() external view virtual returns(bytes32);
+    function getUsername() public view virtual returns(bytes32);
     
     function getAddress(bytes32 _username) external view virtual returns(address);
     
