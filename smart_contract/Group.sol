@@ -1,7 +1,6 @@
 pragma solidity >=0.4.22 <0.7.0;
 
 import "./ITimeMachineChat.sol";
-import "./IGroup.sol";
 
 contract Group is IGroup{
 

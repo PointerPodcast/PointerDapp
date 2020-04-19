@@ -1,12 +1,11 @@
 pragma solidity >=0.4.22 <0.7.0;
 
 import "./Group.sol";
-import "./ITimeMachineChat.sol";
 
 contract TimeMachineChat is ITimeMachineChat{
 
   //The indexed keyword will allow you to search these events using the indexed parameter as a filter
-  event Thanks(bytes32 indexed from, uint amount);
+  event Thanks(address indexed from, uint amount);
 
   //We are going to use Registered event as a variable. 
   //TODO: veramente costa meno? rispetto ad un uint?
@@ -81,7 +80,7 @@ contract TimeMachineChat is ITimeMachineChat{
  
   //Get Your username
   //Is a view function. This means that is free. What happens if you mark as view a function which modify the smart contract's storage?
-  function getUsername() public view isRegistered override returns(bytes32){ //returns syntax
+  function getUsername() external view isRegistered override returns(bytes32){ //returns syntax
     return addressToUsername[tx.origin]; //tx.origin and not msg.sender
   }
 
@@ -121,8 +120,7 @@ contract TimeMachineChat is ITimeMachineChat{
   //Donate some value to this smartcontract
   function sayThanks() external payable override isRegistered{
     require(msg.value > 0);
-    bytes32 from = getUsername();
-    emit Thanks(from, msg.value);
+    emit Thanks(msg.sender, msg.value);
   }
 
 
