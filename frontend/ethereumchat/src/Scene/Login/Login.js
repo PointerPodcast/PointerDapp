@@ -1,82 +1,51 @@
-// import React from 'react';
-
-// import Web3 from "web3";
-
-
-// const useStyles = makeStyles((theme) => ({
+import React, { useState } from "react";
+import { TextField, Button } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 
 
-//     title: {
-//         flexGrow: 1,
-//     },
-//     container: {
-//         paddingTop: theme.spacing(7),
-//     }
-// }));
-
-// const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world"];
-
-// export default function ButtonAppBar() {
-//     const classes = useStyles();
-//     const { height, width } = useWindowDimensions();
-//     return (
-//         <div className={classes.root}>
-//             <AppBar>
-//                 <Toolbar variant="dense">
-//                     <Typography variant="h6" color="inherit">
-//                         EthereumChat
-//                         </Typography>
-//                 </Toolbar>
-//             </AppBar>
-//             <Grid container spacing={1} className={classes.container}>
-//                 <Grid item xs={3}>
-//                     <Container>
-//                         <Button variant="contained" color="primary">
-//                             Add Group
-//                             </Button>
-
-//                     </Container>
-//                 </Grid>
+const Login = () => {
+    const [username, setUsername] = useState('');
 
 
-//                 <Grid item xs={9} spacing={3} >
-//                     <Box >
-//                         <Box height={height - 156} style={{ overflow: 'auto' }}>
-//                             <Paper >
-//                                 {elements.map((value, _) => {
-//                                     return <Message sender="Luca" body={value}></Message>
-//                                 })}
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if (username == '') {
+            alert('Il campo username non può essere lasciato vuoto');
+        }
+        else {
+            alert('It works!');
+        }
+    }
 
-//                             </Paper>
-//                         </Box>
-//                         <Box>
-//                             <Grid item>
-//                                 <TextField
-//                                     id="multiline-static"
-//                                     fullWidth
-//                                     multiline
-//                                     rows="2"
-//                                     InputLabelProps={{
-//                                         shrink: true
-//                                     }}
-//                                     placeholder="Start writing your message"
-//                                     className={classes.textField}
-//                                     margin="normal"
-//                                 // style={{ position: 'absolute', }}
-//                                 />
-//                             </Grid>
-//                         </Box>
-//                     </Box>
+    return (
+        <div>
+            <Grid container
+                spacing={3}
+                direction="column"
+                alignItems="center"
+                justify="center"
+                style={{ minHeight: "100vh" }}
+            >
+                <Grid item xs={12} >
+                    <TextField
+                        id="outlined-basic"
+                        label="Username"
+                        variant="outlined"
+                        onChange={e => setUsername(e.target.value)} />
+                </Grid>
+                <Grid item xs={12} >
+                    <Button variant="contained" color="primary" onClick={handleSubmit} >
+                        Login!
+                        </Button>
+                </Grid>
 
+            </Grid>
+            <Paper />
 
+        </div >
 
+    );
+}
 
-
-//                 </Grid>
-//             </Grid >
-
-
-
-//         </div >
-//     );
-// }
+export default (Login);
