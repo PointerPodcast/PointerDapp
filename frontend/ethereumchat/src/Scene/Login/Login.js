@@ -1,22 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-
+import Web3 from "web3";
+import {
+    TIME_MACHINE_ABI
+} from "../../Services/Ethereum/config";
 
 const Login = () => {
     const [username, setUsername] = useState('');
+    const [account, setAccount] = useState('');
+    var web3;
 
 
-    const handleSubmit = (event) => {
+    async function fetchMyAccount() {
+        web3 = new Web3('HTTP://127.0.0.1:8545')
+        const accounts = await web3.eth.getAccounts()
+        const network = await web3.eth.net.getNetworkType();
+        setAccount(accounts[0])
+    }
+
+    useEffect(() => {
+        fetchMyAccount()
+    });
+
+
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
         if (username == '') {
             alert('Il campo username non può essere lasciato vuoto');
         }
         else {
-            alert('It works!');
+            const accounts = await web3.eth.getAccounts();
+            console.log(accounts)
+            const address = accounts[0];
+            const contratto = new web3.eth.Contract(
+                TIME_MACHINE_ABI,
+                "0x8e02756305e1d9319EA7905822D26a7911505cf8"
+            );
+            contratto.methods
+                .setUsername("0x6369616f206d6f6e646f00000000000000000000000000000000000000000000")
+                .send({
+                    from: address,
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    console.log("ok")
+                })
+                .on("error", () => {
+                    console.log("errore")
+                });
         }
     }
+
 
     return (
         <div>

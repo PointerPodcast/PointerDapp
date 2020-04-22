@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world", 'one', 'two', 'three', "hello world"];
 
 const Home = () => {
-    const [account, setAccount] = useState('Ciao');
+    const [account, setAccount] = useState('');
 
     async function fetchMyAccount() {
         const web3 = new Web3('HTTP://127.0.0.1:8545')
