@@ -40,15 +40,15 @@ const Login = () => {
                 "0x8e02756305e1d9319EA7905822D26a7911505cf8"
             );
             contratto.methods
-                .setUsername("0x6369616f206d6f6e646f00000000000000000000000000000000000000000000")
+                .setUsername(web3.utils.fromAscii(username))
                 .send({
                     from: address,
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
                     console.log("ok")
                 })
-                .on("error", () => {
-                    console.log("errore")
+                .on("error", (error) => {
+                    console.log(error)
                 });
         }
     }

@@ -131,7 +131,7 @@ export const TIME_MACHINE_ABI = [
     }
 ];
 
-export const GROUP_ABI = [
+export const GROUPS_ABI = [
     {
         "inputs": [
             {
