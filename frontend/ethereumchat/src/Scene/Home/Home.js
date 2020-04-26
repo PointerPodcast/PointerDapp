@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { AppBar, Typography, List } from '@material-ui/core';
@@ -38,92 +38,54 @@ const Home = () => {
     const { height, width } = useWindowDimensions();
     const [open, setOpen] = React.useState(false);
     const [groupName, setGroupName] = useState('');
-    const [groupsBytes32, setGroups] = useState([]);
-    const [contratto, setContratto] = useState('');
-    var web3;
-    var address;
-    var groupNamesTMP = [];
+    const web3 = useRef();
+    const accounts = useRef();
+    const contratto = useRef();
+    const [address, setAddress] = useState('');
+    const [render, setRender] = React.useState(false);
     const [groupNames, setGroupNames] = useState([]);
 
-    // async function fetchMyAccount() {
-    //     web3 = new Web3('HTTP://127.0.0.1:8545')
-    //     var accounts = await web3.eth.getAccounts()
-    //     address = accounts[0]
-    // }
-
-    // function fetchGroups() {
-    //     const contratto = new web3.eth.Contract(
-    //         TIME_MACHINE_ABI,
-    //         "0x8e02756305e1d9319EA7905822D26a7911505cf8"
-    //     )
-    //     contratto.methods
-    //         .getGroups()
-    //         .call({ from: address })
-    //         .then((result) => {
-    //             result.map((groupAddress) => {
-    //                 console.log(groupAddress)
-    //                 retrieveGroupsName(groupAddress)
-    //             })
-    //         });
-    // }
-
-    // function retrieveGroupsName(groupAddress) {
-    //     const groupContract = new web3.eth.Contract(
-    //         GROUPS_ABI,
-    //         groupAddress
-    //     );
-    //     groupContract.methods
-    //         .getGroupName()
-    //         .call({ from: address })
-    //         .then((result) => {
-    //             console.log(result)
-    //             groupNames.push(result)
-    //         });
-
-    // }
-
     useEffect(() => {
-        // Create an scoped async function in the hook
         async function anyNameFunction() {
-            web3 = new Web3('HTTP://127.0.0.1:8545')
-            var accounts = await web3.eth.getAccounts()
-            address = accounts[0]
-            const contratto = new web3.eth.Contract(
+            console.log("refresh")
+            web3.current = new Web3('HTTP://127.0.0.1:8545')
+            accounts.current = await web3.current.eth.getAccounts()
+            setAddress(accounts.current[0])
+            contratto.current = new web3.current.eth.Contract(
                 TIME_MACHINE_ABI,
                 "0x8e02756305e1d9319EA7905822D26a7911505cf8"
             )
-            contratto.methods
+
+            contratto.current.methods
                 .getGroups()
                 .call({ from: address })
                 .then((result) => {
-                    result.map((groupAddress) => {
-                        const groupContract = new web3.eth.Contract(
-                            GROUPS_ABI,
-                            groupAddress
-                        );
-                        groupContract.methods
-                            .getGroupName()
-                            .call({ from: address })
-                            .then((result) => {
-                                setGroupNames(groupNames => groupNames.concat(web3.utils.toUtf8(result)));
-                            });
-                    })
+                    Promise.all(
+                        result.map(async (groupAddress) => {
+                            const groupContract = new web3.current.eth.Contract(
+                                GROUPS_ABI,
+                                groupAddress
+                            );
+                            var name = await groupContract.methods
+                                .getGroupName()
+                                .call({ from: address })
+                                .then((result) => {
+                                    return web3.current.utils.toUtf8(result)
+                                });
+                            return name
+                        })
+                    ).then(function (results) {
+                        setGroupNames(results);
+                    });
                 });
         }
         anyNameFunction();
 
-    }, []);
+    }, [render]);
 
     useEffect(() => {
-        console.log(groupNames);
+        console.log(groupNames)
     }, [groupNames]);
-
-
-    // useEffect(() => {
-    //     fetchMyAccount()
-    //     fetchGroups()
-    //     console.log(groupNames)
-    // });
 
 
     const createGroup = async () => {
@@ -131,15 +93,8 @@ const Home = () => {
             alert("This field cannot be empty");
         }
         else {
-            const accounts = await web3.eth.getAccounts();
-            const address = accounts[0];
-
-            const contratto = new web3.eth.Contract(
-                TIME_MACHINE_ABI,
-                "0x8e02756305e1d9319EA7905822D26a7911505cf8"
-            )
-            contratto.methods
-                .createGroup(web3.utils.fromAscii(groupName))
+            contratto.current.methods
+                .createGroup(web3.current.utils.fromAscii(groupName))
                 .send({
                     from: address,
                     gas: 1000000,
@@ -203,6 +158,9 @@ const Home = () => {
                                  </Button>
                             </DialogActions>
                         </Dialog>
+                        {groupNames.map((value, _) => {
+                            return <div>{value}</div>
+                        })}
                     </Container>
 
                 </Grid>
