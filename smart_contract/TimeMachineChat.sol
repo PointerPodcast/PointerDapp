@@ -21,7 +21,7 @@ contract TimeMachineChat is ITimeMachineChat{
   mapping(bytes32 => address) usernameToAddress;
 
   //Avoid duplicate usernames
-  mapping(bytes32 => bool) usernames;
+  //mapping(bytes32 => bool) usernames;
 
   /*
   Why not? Storage costs!
@@ -56,7 +56,8 @@ contract TimeMachineChat is ITimeMachineChat{
 
   //check that "username" is not already taken
   modifier usernameTaken(bytes32 _username){
-    require(!usernames[_username], "Username not available");
+    require(usernameToAddress[_username] != address(0), "Username not available");
+    //require(!usernames[_username], "Username not available");
     _;
   }
 

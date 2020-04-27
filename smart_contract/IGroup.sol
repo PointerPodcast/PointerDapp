@@ -17,4 +17,3 @@ interface IGroup{
   function closeGroup() external virtual;
   
 }
-
