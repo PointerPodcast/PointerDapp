@@ -20,10 +20,11 @@ import {
     TIME_MACHINE_ABI,
     GROUPS_ABI
 } from "../../Services/Ethereum/config";
+import GroupList from '../Home/Components/GroupList';
+
+
 
 const useStyles = makeStyles((theme) => ({
-
-
     title: {
         flexGrow: 1,
     },
@@ -35,6 +36,7 @@ const elements = ['one', 'two', 'three', "hello world", 'one', 'two', 'one', 'tw
 
 const Home = () => {
     const classes = useStyles();
+
     const { height, width } = useWindowDimensions();
     const [open, setOpen] = React.useState(false);
     const [groupName, setGroupName] = useState('');
@@ -44,6 +46,14 @@ const Home = () => {
     const [address, setAddress] = useState('');
     const [render, setRender] = React.useState(false);
     const [groupNames, setGroupNames] = useState([]);
+    const [GroupAddresses, setGroupAddresses] = useState([]);
+    const [selectedGroup, setSelectedGroup] = useState('')
+    const [username, setUsername] = useState('')
+
+    const [messages, setMessages] = useState([])
+    const [openLogin, setOpenLogin] = React.useState(true);
+    const [loginUsername, setLoginUsername] = useState('');
+
 
     useEffect(() => {
         async function anyNameFunction() {
@@ -66,10 +76,12 @@ const Home = () => {
                                 GROUPS_ABI,
                                 groupAddress
                             );
+                            setGroupAddresses([])
                             var name = await groupContract.methods
                                 .getGroupName()
                                 .call({ from: address })
                                 .then((result) => {
+                                    setGroupAddresses(GroupAddresses => GroupAddresses.concat(groupAddress));
                                     return web3.current.utils.toUtf8(result)
                                 });
                             return name
@@ -78,14 +90,18 @@ const Home = () => {
                         setGroupNames(results);
                     });
                 });
+
+            contratto.current.methods
+                .getUsername()
+                .call({ from: address })
+                .then((result) => {
+                    setUsername(web3.current.utils.toUtf8(result))
+                });
         }
         anyNameFunction();
 
     }, [render]);
 
-    useEffect(() => {
-        console.log(groupNames)
-    }, [groupNames]);
 
 
     const createGroup = async () => {
@@ -115,6 +131,89 @@ const Home = () => {
 
     const handleClose = () => {
         setOpen(false);
+        render ? setRender(false) : setRender(true);
+    };
+
+    const sendMessage = () => {
+        var message = document.getElementById('multiline-static').value
+        if (selectedGroup == '') {
+            alert("Seleziona un gruppo in cui inviare il messaggio")
+        }
+        else if (message != '') {
+            const groupContract = new web3.current.eth.Contract(
+                GROUPS_ABI,
+                selectedGroup
+            );
+            groupContract.methods
+                .sendEventMessage(web3.current.utils.fromAscii(message), false)
+                .send({
+                    from: address,
+                    gas: 1000000,
+                    gasPrice: '1'
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    document.getElementById('multiline-static').value = ""
+                    console.log("Inviato")
+                    fetchEvent(selectedGroup)
+                })
+                .on("error", (error) => {
+                    console.log(error);
+                });
+        }
+
+    }
+
+    const fetchEvent = async (address) => {
+        console.log(address)
+        const groupContract = new web3.current.eth.Contract(
+            GROUPS_ABI,
+            address
+        );
+        groupContract.getPastEvents("allEvents",
+            {
+                fromBlock: 0,
+                toBlock: 'latest'
+            })
+            .then(events => {
+                setMessages([])
+                events.map((value, _) => {
+                    console.log(web3.current.utils.toUtf8(value.returnValues.from))
+                    setMessages(messages => messages.concat({
+                        name: web3.current.utils.toUtf8(value.returnValues.from),
+                        message: web3.current.utils.toUtf8(value.returnValues.message)
+                    }));
+                })
+            }
+            )
+            .catch((err) => console.error(err));
+    }
+
+    const changeSelectedGroup = (address) => {
+        setSelectedGroup(address);
+        fetchEvent(address)
+
+    };
+
+
+    const handleLoginClose = () => {
+        if (loginUsername == '') {
+            alert('Il campo username non può essere lasciato vuoto');
+        }
+        else {
+            contratto.current.methods
+                .setUsername(web3.current.utils.fromAscii(loginUsername))
+                .send({
+                    from: address,
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    setOpenLogin(false);
+                })
+                .on("error", (error) => {
+                    if (error.message.includes('Address already registered')) {
+                        setOpenLogin(false);
+                    }
+                });
+        }
     };
 
 
@@ -122,11 +221,41 @@ const Home = () => {
         <div className={classes.root}>
             <AppBar>
                 <Toolbar variant="dense">
-                    <Typography variant="h6" color="inherit">
+
+                    <Typography variant="h6" color="inherit" className={classes.title}>
                         EthereumChat
                         </Typography>
+                    <Button color="inherit">{username}</Button>
                 </Toolbar>
             </AppBar>
+
+
+            <Dialog open={openLogin} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Login</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Insert your username to use the chat!
+          </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Username"
+                        type="string"
+                        fullWidth
+                        onChange={e => setLoginUsername(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+
+                    <Button onClick={handleLoginClose} color="primary">
+                        Login
+          </Button>
+                </DialogActions>
+            </Dialog>
+
+
+
             <Grid container spacing={1} className={classes.container}>
                 <Grid item xs={3}>
                     <Container>
@@ -158,9 +287,8 @@ const Home = () => {
                                  </Button>
                             </DialogActions>
                         </Dialog>
-                        {groupNames.map((value, _) => {
-                            return <div>{value}</div>
-                        })}
+
+                        <GroupList groupNames={groupNames} changeGroup={changeSelectedGroup} groupAddresses={GroupAddresses}></GroupList>
                     </Container>
 
                 </Grid>
@@ -169,36 +297,36 @@ const Home = () => {
                 <Grid item xs={9} spacing={3} >
                     <Box >
                         <Box height={height - 156} style={{ overflow: 'auto' }}>
-                            <Paper >
-                                {elements.map((value, _) => {
-                                    return <Message sender={address} body={value}></Message>
-                                })}
+                            {messages.slice(0).reverse().map((value, _) => {
+                                return <Message sender={value.name} body={value.message}></Message>
+                            })}
 
-                            </Paper>
                         </Box>
                         <Box>
-                            <Grid item>
-                                <TextField
-                                    id="multiline-static"
-                                    fullWidth
-                                    multiline
-                                    rows="2"
-                                    InputLabelProps={{
-                                        shrink: true
-                                    }}
-                                    placeholder="Start writing your message"
-                                    className={classes.textField}
-                                    margin="normal"
-                                // style={{ position: 'absolute', }}
-                                />
+                            <Grid container >
+                                <Grid item xs={10}>
+                                    <TextField
+                                        id="multiline-static"
+                                        fullWidth
+                                        multiline
+                                        rows="2"
+                                        InputLabelProps={{
+                                            shrink: true
+                                        }}
+                                        placeholder="Start writing your message"
+                                        className={classes.textField}
+                                        margin="normal"
+
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <Button color="primary" onClick={sendMessage}>
+                                        Send
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </Box>
                     </Box>
-
-
-
-
-
                 </Grid>
             </Grid >
 
