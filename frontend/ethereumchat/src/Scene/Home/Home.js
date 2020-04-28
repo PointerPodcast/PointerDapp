@@ -58,12 +58,13 @@ const Home = () => {
     useEffect(() => {
         async function anyNameFunction() {
             console.log("refresh")
-            web3.current = new Web3('HTTP://127.0.0.1:8545')
+            //web3.current = new Web3('HTTP://127.0.0.1:8545')
+            web3.current = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'))
             accounts.current = await web3.current.eth.getAccounts()
             setAddress(accounts.current[0])
             contratto.current = new web3.current.eth.Contract(
                 TIME_MACHINE_ABI,
-                "0x8e02756305e1d9319EA7905822D26a7911505cf8"
+                "0xdf7a5828d8F0ABd809DC285bE81075549C0288Ab"
             )
 
             contratto.current.methods
@@ -84,6 +85,7 @@ const Home = () => {
                                     setGroupAddresses(GroupAddresses => GroupAddresses.concat(groupAddress));
                                     return web3.current.utils.toUtf8(result)
                                 });
+
                             return name
                         })
                     ).then(function (results) {
@@ -101,6 +103,29 @@ const Home = () => {
         anyNameFunction();
 
     }, [render]);
+
+
+    useEffect(() => {
+        var i = 0
+        for (i = 0; i < groupNames.length; i++) {
+            const groupContract = new web3.current.eth.Contract(
+                GROUPS_ABI,
+                GroupAddresses[i]
+            );
+
+            groupContract.events.Message({
+                fromBlock: 0
+            }, function (error, event) {
+                setMessages(messages => messages.concat({
+                    name: web3.current.utils.toUtf8(event.returnValues.from),
+                    message: web3.current.utils.toUtf8(event.returnValues.message),
+                    groupName: event.address,
+                }));
+
+            })
+
+        }
+    }, [groupNames]);
 
 
 
@@ -152,46 +177,20 @@ const Home = () => {
                     gasPrice: '1'
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
-                    document.getElementById('multiline-static').value = ""
                     console.log("Inviato")
-                    fetchEvent(selectedGroup)
                 })
                 .on("error", (error) => {
                     console.log(error);
                 });
         }
+        document.getElementById('multiline-static').value = ""
 
     }
 
-    const fetchEvent = async (address) => {
-        console.log(address)
-        const groupContract = new web3.current.eth.Contract(
-            GROUPS_ABI,
-            address
-        );
-        groupContract.getPastEvents("allEvents",
-            {
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
-            .then(events => {
-                setMessages([])
-                events.map((value, _) => {
-                    console.log(web3.current.utils.toUtf8(value.returnValues.from))
-                    setMessages(messages => messages.concat({
-                        name: web3.current.utils.toUtf8(value.returnValues.from),
-                        message: web3.current.utils.toUtf8(value.returnValues.message)
-                    }));
-                })
-            }
-            )
-            .catch((err) => console.error(err));
-    }
 
     const changeSelectedGroup = (address) => {
         setSelectedGroup(address);
-        fetchEvent(address)
-
+        console.log(address)
     };
 
 
@@ -238,7 +237,6 @@ const Home = () => {
           </DialogContentText>
                     <TextField
                         autoFocus
-                        margin="dense"
                         id="name"
                         label="Username"
                         type="string"
@@ -270,7 +268,6 @@ const Home = () => {
                                 </DialogContentText>
                                 <TextField
                                     autoFocus
-                                    margin=""
                                     id="name"
                                     label="Group Name"
                                     type="string"
@@ -298,7 +295,10 @@ const Home = () => {
                     <Box >
                         <Box height={height - 156} style={{ overflow: 'auto' }}>
                             {messages.slice(0).reverse().map((value, _) => {
-                                return <Message sender={value.name} body={value.message}></Message>
+                                if (value.groupName == selectedGroup) {
+                                    return <Message sender={value.name} body={value.message}></Message>
+
+                                }
                             })}
 
                         </Box>
@@ -315,7 +315,6 @@ const Home = () => {
                                         }}
                                         placeholder="Start writing your message"
                                         className={classes.textField}
-                                        margin="normal"
 
                                     />
                                 </Grid>
