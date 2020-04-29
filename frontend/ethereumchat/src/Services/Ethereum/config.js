@@ -1,4 +1,4 @@
-export const ADDRESS_STORAGE = "";
+export const TIME_MACHINE_ADDRESS = "0x84fA2D42FF5fc639fC5F207E53fcd12c8C2bB5Dc";
 
 export const TIME_MACHINE_ABI = [
     {

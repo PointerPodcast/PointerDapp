@@ -18,7 +18,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {
     TIME_MACHINE_ABI,
-    GROUPS_ABI
+    GROUPS_ABI,
+    TIME_MACHINE_ADDRESS
 } from "../../Services/Ethereum/config";
 import GroupList from '../Home/Components/GroupList';
 
@@ -64,7 +65,7 @@ const Home = () => {
             setAddress(accounts.current[0])
             contratto.current = new web3.current.eth.Contract(
                 TIME_MACHINE_ABI,
-                "0xdf7a5828d8F0ABd809DC285bE81075549C0288Ab"
+                TIME_MACHINE_ADDRESS
             )
 
             contratto.current.methods
