@@ -8,7 +8,6 @@ contract TimeMachineChat is ITimeMachineChat{
   event Thanks(address indexed from, uint amount);
 
   //We are going to use Registered event as a variable. 
-  //TODO: veramente costa meno? rispetto ad un uint?
   event Registered();
 
   //owner is an address. The keyword "payable" means that owner can receive ether. 
@@ -20,21 +19,11 @@ contract TimeMachineChat is ITimeMachineChat{
   //Needed for sendDonation(bytes32 _username) in Group
   mapping(bytes32 => address) usernameToAddress;
 
-  //Avoid duplicate usernames
-  mapping(bytes32 => bool) usernames;
-
-  /*
-  Why not? Storage costs!
-  struct Group_data{
-    bytes32 name;
-    Group address contract; 
-  }
-  */
 
   //Storage Array of groups
   IGroup[] groups;
   
-  //Avoid duplicate usernames
+  //Avoid duplicate group
   mapping(bytes32 => bool) existGroup;
 
   //Constructor
@@ -50,19 +39,18 @@ contract TimeMachineChat is ITimeMachineChat{
 
   //check whether msg.sender is already registered
   modifier addressAlreadyRegistered(){
-    require(addressToUsername[msg.sender] == bytes4(0x0), "Address already registered");
+    require(addressToUsername[msg.sender] == bytes32(0x0), "Address already registered");
     _;
   }
 
   //check that "username" is not already taken
   modifier usernameTaken(bytes32 _username){
-    //require(usernameToAddress[_username] != address(0), "Username not available");
-    require(!usernames[_username], "Username not available");
+    require(usernameToAddress[_username] == address(0x0), "Username not available");
     _;
   }
 
   modifier isRegistered(){
-    require(addressToUsername[tx.origin] != bytes4(0x0), "Address is not registered");//qui ci stava origin
+    require(addressToUsername[tx.origin] != bytes32(0x0), "Address is not registered");//qui ci stava origin
     _;
   }
 
@@ -75,14 +63,13 @@ contract TimeMachineChat is ITimeMachineChat{
   function setUsername(bytes32 _username) external addressAlreadyRegistered usernameTaken(_username) override{
     addressToUsername[msg.sender] = _username; 
     usernameToAddress[_username] = msg.sender;
-    usernames[_username] = true; 
     emit Registered();
   }
  
   //Get Your username
   //Is a view function. This means that is free. What happens if you mark as view a function which modify the smart contract's storage?
   function getUsername() external view override returns(bytes32){ //returns syntax
-    return addressToUsername[tx.origin]; //tx.origin and not msg.sender //TODO ricontrollare con ale, tolto origin
+    return addressToUsername[tx.origin]; //tx.origin and not msg.sender 
   }
 
   function getAddress(bytes32 _username) external view isRegistered() override returns(address){
