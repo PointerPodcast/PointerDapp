@@ -285,7 +285,7 @@ const Home = () => {
 
 
             <Grid container spacing={1} className={classes.container}>
-                <Grid item xs={3}>
+                <Grid item xs={12} sm={5} md={3} xl={3}>
                     <Container>
                         <Button variant="contained" color="primary" onClick={handleClickOpen}>
                             Add Group
@@ -321,7 +321,7 @@ const Home = () => {
                 </Grid>
 
 
-                <Grid item xs={9} spacing={3} >
+                <Grid item xs={12} sm={7} md={9} xl={9} spacing={3} >
                     <Box >
                         <Box height={height - 156} style={{ overflow: 'auto' }}>
                             {generateMessages}
