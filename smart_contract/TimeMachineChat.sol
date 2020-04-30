@@ -21,7 +21,7 @@ contract TimeMachineChat is ITimeMachineChat{
   mapping(bytes32 => address) usernameToAddress;
 
   //Avoid duplicate usernames
-  //mapping(bytes32 => bool) usernames;
+  mapping(bytes32 => bool) usernames;
 
   /*
   Why not? Storage costs!
@@ -56,13 +56,13 @@ contract TimeMachineChat is ITimeMachineChat{
 
   //check that "username" is not already taken
   modifier usernameTaken(bytes32 _username){
-    require(usernameToAddress[_username] != address(0), "Username not available");
-    //require(!usernames[_username], "Username not available");
+    //require(usernameToAddress[_username] != address(0), "Username not available");
+    require(!usernames[_username], "Username not available");
     _;
   }
 
   modifier isRegistered(){
-    require(addressToUsername[tx.origin] != bytes4(0x0), "Address is not registered");
+    require(addressToUsername[tx.origin] != bytes4(0x0), "Address is not registered");//qui ci stava origin
     _;
   }
 
@@ -81,11 +81,11 @@ contract TimeMachineChat is ITimeMachineChat{
  
   //Get Your username
   //Is a view function. This means that is free. What happens if you mark as view a function which modify the smart contract's storage?
-  function getUsername() external view isRegistered override returns(bytes32){ //returns syntax
-    return addressToUsername[tx.origin]; //tx.origin and not msg.sender
+  function getUsername() external view override returns(bytes32){ //returns syntax
+    return addressToUsername[tx.origin]; //tx.origin and not msg.sender //TODO ricontrollare con ale, tolto origin
   }
 
-  function getAddress(bytes32 _username) external view isRegistered override returns(address){
+  function getAddress(bytes32 _username) external view isRegistered() override returns(address){
     return usernameToAddress[_username];
   }
 
@@ -98,7 +98,7 @@ contract TimeMachineChat is ITimeMachineChat{
   //Iterate over an array costs. Theoretically, groups could contain many groups.
   //-> Tradeoff: I need an array of groups, so I use an uint which identify the position of a group inside the array. When you remove an array element, that position will be empty.  //To avoid useless waste of storage, we have to shift groups inside the array. Are you serious? Joking.
   //You have to switch the last group with the empty position. That's why we need to store the position of the deleted group.
-  function createGroup(bytes32 _groupName) external override isRegistered groupAlreadyExists(_groupName){
+  function createGroup(bytes32 _groupName) external override isRegistered() groupAlreadyExists(_groupName){
     Group g = new Group(msg.sender, _groupName, groups.length); 
     groups.push(g);
     existGroup[_groupName] = true;
@@ -119,7 +119,7 @@ contract TimeMachineChat is ITimeMachineChat{
   }
 
   //Donate some value to this smartcontract
-  function sayThanks() external payable override isRegistered{
+  function sayThanks() external payable override isRegistered(){
     require(msg.value > 0);
     emit Thanks(msg.sender, msg.value);
   }
