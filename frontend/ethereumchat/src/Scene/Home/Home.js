@@ -60,7 +60,7 @@ const Home = () => {
         async function anyNameFunction() {
             console.log("refresh")
             //web3.current = new Web3('HTTP://127.0.0.1:8545')
-            web3.current = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'))
+            web3.current = new Web3(Web3.givenProvider)
             accounts.current = await web3.current.eth.getAccounts()
             setAddress(accounts.current[0])
             contratto.current = new web3.current.eth.Contract(
@@ -86,19 +86,31 @@ const Home = () => {
                                     setGroupAddresses(GroupAddresses => GroupAddresses.concat(groupAddress));
                                     return web3.current.utils.toUtf8(result)
                                 });
-
-                            return name
+                    
+                            return {groupName: name, addressG: groupAddress}
                         })
                     ).then(function (results) {
+                        console.log(results.length)
                         setGroupNames(results);
                     });
                 });
 
             contratto.current.methods
                 .getUsername()
-                .call({ from: address })
+                .call({ from: accounts.current[0] })
                 .then((result) => {
-                    setUsername(web3.current.utils.toUtf8(result))
+                    try{ 
+                        if(result == "0x0000000000000000000000000000000000000000000000000000000000000000")
+                            setOpenLogin(true)
+                        else{
+                            console.log(result)
+                            setUsername(web3.current.utils.toUtf8(result))
+                            console.log(web3.current.utils.toUtf8(result))
+                            setOpenLogin(false)
+                        }
+                    }catch(error){
+                        console.log(error)
+                    }
                 });
         }
         anyNameFunction();
@@ -107,8 +119,9 @@ const Home = () => {
 
 
     useEffect(() => {
-        var i = 0
-        for (i = 0; i < groupNames.length; i++) {
+        setMessages([])
+        console.log(groupNames)
+        for (var i = 0; i < groupNames.length; i++) {
             const groupContract = new web3.current.eth.Contract(
                 GROUPS_ABI,
                 GroupAddresses[i]
@@ -117,6 +130,7 @@ const Home = () => {
             groupContract.events.Message({
                 fromBlock: 0
             }, function (error, event) {
+                console.log(event)
                 setMessages(messages => messages.concat({
                     name: web3.current.utils.toUtf8(event.returnValues.from),
                     message: web3.current.utils.toUtf8(event.returnValues.message),
@@ -138,9 +152,9 @@ const Home = () => {
             contratto.current.methods
                 .createGroup(web3.current.utils.fromAscii(groupName))
                 .send({
-                    from: address,
-                    gas: 1000000,
-                    gasPrice: '1'
+                    from: address
+                    //gas: 1000000,
+                    //gasPrice: '1'
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
                     handleClose();
@@ -173,9 +187,9 @@ const Home = () => {
             groupContract.methods
                 .sendEventMessage(web3.current.utils.fromAscii(message), false)
                 .send({
-                    from: address,
-                    gas: 1000000,
-                    gasPrice: '1'
+                    from: address
+          //          gas: 1000000,
+          //         gasPrice: '1'
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
                     console.log("Inviato")
@@ -286,7 +300,7 @@ const Home = () => {
                             </DialogActions>
                         </Dialog>
 
-                        <GroupList groupNames={groupNames} changeGroup={changeSelectedGroup} groupAddresses={GroupAddresses}></GroupList>
+                        <GroupList groupNames={groupNames} changeGroup={changeSelectedGroup} ></GroupList>
                     </Container>
 
                 </Grid>
@@ -297,6 +311,7 @@ const Home = () => {
                         <Box height={height - 156} style={{ overflow: 'auto' }}>
                             {messages.slice(0).reverse().map((value, _) => {
                                 if (value.groupName == selectedGroup) {
+                                    console.log(value)
                                     return <Message sender={value.name} body={value.message}></Message>
 
                                 }
@@ -336,3 +351,4 @@ const Home = () => {
     );
 }
 export default Home;
+
