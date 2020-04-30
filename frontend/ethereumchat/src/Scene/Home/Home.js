@@ -86,8 +86,8 @@ const Home = () => {
                                     setGroupAddresses(GroupAddresses => GroupAddresses.concat(groupAddress));
                                     return web3.current.utils.toUtf8(result)
                                 });
-                    
-                            return {groupName: name, addressG: groupAddress}
+
+                            return { groupName: name, addressG: groupAddress }
                         })
                     ).then(function (results) {
                         console.log(results.length)
@@ -99,16 +99,16 @@ const Home = () => {
                 .getUsername()
                 .call({ from: accounts.current[0] })
                 .then((result) => {
-                    try{ 
-                        if(result == "0x0000000000000000000000000000000000000000000000000000000000000000")
+                    try {
+                        if (result == "0x0000000000000000000000000000000000000000000000000000000000000000")
                             setOpenLogin(true)
-                        else{
+                        else {
                             console.log(result)
                             setUsername(web3.current.utils.toUtf8(result))
                             console.log(web3.current.utils.toUtf8(result))
                             setOpenLogin(false)
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error)
                     }
                 });
@@ -135,6 +135,7 @@ const Home = () => {
                     name: web3.current.utils.toUtf8(event.returnValues.from),
                     message: web3.current.utils.toUtf8(event.returnValues.message),
                     groupName: event.address,
+                    hash: event.transactionHash
                 }));
 
             })
@@ -188,8 +189,8 @@ const Home = () => {
                 .sendEventMessage(web3.current.utils.fromAscii(message), false)
                 .send({
                     from: address
-          //          gas: 1000000,
-          //         gasPrice: '1'
+                    //          gas: 1000000,
+                    //         gasPrice: '1'
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
                     console.log("Inviato")
@@ -229,6 +230,20 @@ const Home = () => {
                 });
         }
     };
+
+    var list = []
+
+    const generateMessages =
+        messages.slice(0).reverse().map((value, _) => {
+            console.log(value.hash)
+            if (value.groupName == selectedGroup && list.indexOf(value.hash) === -1) {
+                console.log(value)
+                list.push(value.hash)
+                return (<Message sender={value.name} body={value.message}></Message>)
+
+            }
+        })
+
 
 
     return (
@@ -309,13 +324,7 @@ const Home = () => {
                 <Grid item xs={9} spacing={3} >
                     <Box >
                         <Box height={height - 156} style={{ overflow: 'auto' }}>
-                            {messages.slice(0).reverse().map((value, _) => {
-                                if (value.groupName == selectedGroup) {
-                                    console.log(value)
-                                    return <Message sender={value.name} body={value.message}></Message>
-
-                                }
-                            })}
+                            {generateMessages}
 
                         </Box>
                         <Box>
