@@ -14,7 +14,8 @@ const Login = () => {
 
 
     async function fetchMyAccount() {
-        web3 = new Web3('HTTP://127.0.0.1:8545')
+        web3 = new Web3(Web3.givenProvider)
+        //web3 = new Web3('HTTP://127.0.0.1:8545') TODO: why?
         const accounts = await web3.eth.getAccounts()
         const network = await web3.eth.net.getNetworkType();
         setAccount(accounts[0])
@@ -29,7 +30,7 @@ const Login = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (username == '') {
-            alert('Il campo username non può essere lasciato vuoto');
+            alert('Field Required');
         }
         else {
             const accounts = await web3.eth.getAccounts();
