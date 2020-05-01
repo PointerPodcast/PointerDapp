@@ -20,6 +20,7 @@ import GroupsBox from '../Home/Components/GroupsBox';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 import Link from '@material-ui/core/Link';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     title: {
@@ -46,23 +47,26 @@ const Home = () => {
     const [avatarLink, setAvatarLink] = useState('');
     const [isMetamaskInstalled, setMetamask] = useState(true);
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
+    const [firstLoad, setFirstLoad] = useState(true);
+
+    const web3 = new Web3(Web3.givenProvider);
+    const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS);
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     var list = []
-	var link;
-    const web3 = new Web3(Web3.givenProvider);
-    const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS)
-    
+    var link;
+
     /*
     window.addEventListener('load', () => {
     });
     */
 
-    function subscribeToNewGroup(){
+    function subscribeToNewGroup() {
         const lastSynchedBlock = lastGroupBlock[TIME_MACHINE_ADDRESS];
         contract.events.NewGroup({
             fromBlock: lastSynchedBlock,
         }, function (error, event) {
-            web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[TIME_MACHINE_ADDRESS] = lastblock+1); //sync according to latest block read
+            web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[TIME_MACHINE_ADDRESS] = lastblock + 1); //sync according to latest block read
             getGroupsMethod()
         })
     }
@@ -80,8 +84,8 @@ const Home = () => {
                         setUsername(web3.utils.toUtf8(result))
                         setOpenLogin(false)
                         var utf8Name = web3.utils.toUtf8(result)
-						link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
-						setAvatarLink(link)
+                        link = 'https://avatars.dicebear.com/v2/identicon/:' + utf8Name + '.svg'
+                        setAvatarLink(link)
                     }
                 })
         );
@@ -127,8 +131,8 @@ const Home = () => {
                                     subscribeToGroupEvent(groupAddress);
                                     return web3.utils.toUtf8(result);
                                 });
-                            var gAvatar = "https://avatars.dicebear.com/v2/bottts/"+name+".svg"
-                            return { groupName: name, addressG: groupAddress, avatar: gAvatar}
+                            var gAvatar = "https://avatars.dicebear.com/v2/bottts/" + name + ".svg"
+                            return { groupName: name, addressG: groupAddress, avatar: gAvatar }
                         })
                     ).then(function (results) {
                         setGroupNames(results);
@@ -180,6 +184,10 @@ const Home = () => {
         );
     }
 
+    function showNotification(message) {
+        enqueueSnackbar(message);
+    };
+
     function subscribeToGroupEvent(groupAddress) {
         if (!isSubscribedGroupMessages[groupAddress]) {
             const groupContract = new web3.eth.Contract(
@@ -190,10 +198,19 @@ const Home = () => {
             groupContract.events.Message({
                 fromBlock: lastSynchedBlock,
             }, function (error, event) {
-                web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[groupAddress] = lastblock + 1); //sync according to latest block read
+                var message = web3.utils.toUtf8(event.returnValues.message)
+                var name = web3.utils.toUtf8(event.returnValues.from)
+                web3.eth.getBlockNumber().then((lastblock) => {
+                    lastGroupBlock[groupAddress] = lastblock + 1
+                    if (event.blockNumber == lastblock) {
+                        showNotification(name + ": " + message);
+                    }
+
+                });
+
                 setMessages(messages => messages.concat({
-                    name: web3.utils.toUtf8(event.returnValues.from),
-                    message: web3.utils.toUtf8(event.returnValues.message),
+                    name: name,
+                    message: message,
                     groupName: event.address,
                     hash: event.transactionHash //QUESTO CI STA CHE POSSA ESSERE TOLTO
                 }));
@@ -203,6 +220,7 @@ const Home = () => {
             setSubscribedGroupMessages(isSubscribedGroupMessages);
         }
     }
+
 
 
     function sendMessageMethod(message) {
@@ -247,8 +265,10 @@ const Home = () => {
 
     const sendMessage = () => {
         var message = document.getElementById('multiline-static').value
-        if (message === '')
+        if (message === '') {
+            alert("Please, write something.")
             return
+        }
         if (selectedGroup === '') {
             alert("Please, select a group.")
             return
@@ -275,6 +295,7 @@ const Home = () => {
     };
 
     const changeSelectedGroup = (groupAddress) => {
+        setFirstLoad(false)
         setSelectedGroup(groupAddress);
         var boxDiv = document.getElementById("scrollBox");
         boxDiv.scrollTop = boxDiv.scrollHeight;
@@ -287,7 +308,7 @@ const Home = () => {
                 list.push(value.hash)
                 var boxDiv = document.getElementById("scrollBox");
                 boxDiv.scrollTop = boxDiv.scrollHeight;
-				var userLinkAvatar = 'https://avatars.dicebear.com/v2/identicon/:'+value.name+'.svg'
+                var userLinkAvatar = 'https://avatars.dicebear.com/v2/identicon/:' + value.name + '.svg'
                 return (<Message sender={value.name} body={value.message} avatar={userLinkAvatar}></Message>)
             }
         })
@@ -296,22 +317,23 @@ const Home = () => {
     return (
         <div className={classes.root}>
             <AppBar>
-				<Toolbar variant="dense"  style={{ backgroundColor: 'teal', color: 'white' }} >
-					<RecordVoiceOverIcon/>
-					<Typography variant="h6" color="inherit" className={classes.title}>
-						<Link href="https://pointerpodcast.it" color="inherit" className={classes.title}>
-							<b>PointerDapp</b>
-						</Link>
-					</Typography>
-					<Avatar  src={avatarLink}> | </Avatar>
-					<Typography variant="h6" color="inherit" className={classes.title}>
-						<b>{username}</b>
-					</Typography>
+                <Toolbar variant="dense" style={{ backgroundColor: 'teal', color: 'white' }} >
+                    <RecordVoiceOverIcon />
+                    <Typography variant="h6" color="inherit" className={classes.title}>
+                        <Link href="https://pointerpodcast.it" color="inherit" className={classes.title}>
+                            <b>PointerDapp</b>
+                        </Link>
+                    </Typography>
+                    <Avatar src={avatarLink}> | </Avatar>
+                    <Typography variant="h6" color="inherit" className={classes.title}>
+                        <b>{username}</b>
+                    </Typography>
                 </Toolbar>
-                <LinearProgress  color="secondary" />
+                <LinearProgress color="secondary" />
             </AppBar>
             {isMetamaskInstalled ? (
                 <div>
+
                     <LoginDialog openLogin={openLogin} handleLoginClose={handleLoginClose} setLoginUsername={setLoginUsername}></LoginDialog>
                     <Grid container spacing={1} className={classes.container}>
                         <Grid item xs={12} sm={5} md={3} xl={3}>
@@ -342,7 +364,7 @@ const Home = () => {
                     ErrorDialog()
                 )}
 
-            <LinearProgress  color="primary" />
+            <LinearProgress color="primary" />
         </div >
     );
 }

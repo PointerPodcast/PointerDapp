@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 import Home from "./Scene/Home/Home";
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { SnackbarProvider } from 'notistack';
 
 
 export default function App() {
@@ -19,9 +20,9 @@ export default function App() {
     // );
 
     return (
-        <ThemeProvider >
+        <SnackbarProvider>
             <Route path="/" component={Home} />
-        </ThemeProvider>
+        </SnackbarProvider>
 
     );
 }
