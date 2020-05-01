@@ -3,24 +3,19 @@ import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { AppBar, Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Box from "@material-ui/core/Box";
 import Message from "./Components/Message"
 import useWindowDimensions from '../../Hooks/useWindowDimension';
 import Web3 from "web3";
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import {
     TIME_MACHINE_ABI,
     GROUPS_ABI,
     TIME_MACHINE_ADDRESS
 } from "../../Services/Ethereum/config";
-import GroupList from '../Home/Components/GroupList';
+import ErrorDialog from '../Home/Components/ErrorDialog';
+import LoginDialog from '../Home/Components/LoginDialog';
+import MessageBox from '../Home/Components/MessageBox';
+import GroupsBox from '../Home/Components/GroupsBox';
 
 
 
@@ -36,8 +31,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Home = () => {
     const classes = useStyles();
-
-    const { height, width } = useWindowDimensions();
     const [open, setOpen] = React.useState(false);
     const [groupName, setGroupName] = useState('');
     const [render, setRender] = React.useState(false);
@@ -177,8 +170,8 @@ const Home = () => {
         );
     }
 
-    function subscribeToGroupEvent(groupAddress){
-        if(!isSubscribedGroupMessages[groupAddress]){
+    function subscribeToGroupEvent(groupAddress) {
+        if (!isSubscribedGroupMessages[groupAddress]) {
             console.log(groupAddress)
             const groupContract = new web3.eth.Contract(
                 GROUPS_ABI,
@@ -188,7 +181,7 @@ const Home = () => {
             groupContract.events.Message({
                 fromBlock: lastSynchedBlock,
             }, function (error, event) {
-                web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[groupAddress] = lastblock+1); //sync according to latest block read
+                web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[groupAddress] = lastblock + 1); //sync according to latest block read
                 setMessages(messages => messages.concat({
                     name: web3.utils.toUtf8(event.returnValues.from),
                     message: web3.utils.toUtf8(event.returnValues.message),
@@ -242,7 +235,7 @@ const Home = () => {
 
         })
 
-    }, [ render]);
+    }, [render]);
 
 
     const sendMessage = () => {
@@ -266,8 +259,6 @@ const Home = () => {
         setUsernameMethod()
     };
 
-
-
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -285,7 +276,7 @@ const Home = () => {
 
 
     const generateMessages =
-        messages.slice(0).map((value, _) => {
+        messages.slice(0).reverse().map((value, _) => {
             if (value.groupName === selectedGroup && list.indexOf(value.hash) === -1) {
                 list.push(value.hash)
                 var boxDiv = document.getElementById("scrollBox");
@@ -293,7 +284,6 @@ const Home = () => {
                 return (<Message sender={value.name} body={value.message}></Message>)
             }
         })
-
 
 
     return (
@@ -309,123 +299,35 @@ const Home = () => {
             </AppBar>
             {isMetamaskInstalled ? (
                 <div>
-                    <Dialog open={openLogin} aria-labelledby="form-dialog-title">
-                        <DialogTitle id="form-dialog-title">Login</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText>
-                                Insert your username to use the chat!
-                    </DialogContentText>
-                            <TextField
-                                autoFocus
-                                id="name"
-                                label="Username"
-                                type="string"
-                                fullWidth
-                                onChange={e => setLoginUsername(e.target.value)}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-
-                            <Button onClick={handleLoginClose} color="primary">
-                                Login
-                    </Button>
-                        </DialogActions>
-                    </Dialog>
-
-
+                    <LoginDialog openLogin={openLogin} handleLoginClose={handleLoginClose} setLoginUsername={setLoginUsername}></LoginDialog>
 
                     <Grid container spacing={1} className={classes.container}>
-                        <Grid item xs={12} sm={5} md={3} xl={3} spacing={10}>
-                            <Container>
-                                <Grid item spacing={2}>
-                                    <Button variant="contained" color="primary" onClick={handleClickOpen}>
-                                        Add Group
-                                    </Button>
-                                    <Button variant="contained" color="secondary" size="small"  onClick={handleClickOpen}>
-                                        Delete Group
-                                    </Button>
-                                </Grid>
-                                <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-                                    <DialogTitle id="form-dialog-title">Create a new Group</DialogTitle>
-                                    <DialogContent>
-                                        <DialogContentText>
-                                            Insert the group name:
-                                        </DialogContentText>
-                                        <TextField
-                                            autoFocus
-                                            id="name"
-                                            label="Group Name"
-                                            type="string"
-                                            fullWidth
-                                            onChange={e => setGroupName(e.target.value)}
-                                        />
-                                    </DialogContent>
-                                    <DialogActions>
-                                        <Button onClick={handleClose} color="primary">
-                                            Cancel
-                                        </Button>
-                                        <Button onClick={createGroup} color="primary">
-                                            Create Group
-                                        </Button>
-                                    </DialogActions>
-                                </Dialog>
-
-                                <GroupList groupNames={groupNames} changeGroup={changeSelectedGroup} ></GroupList>
-                            </Container>
-
+                        <Grid item xs={12} sm={5} md={3} xl={3}>
+                            <GroupsBox
+                                setGroupName={setGroupName}
+                                open={open}
+                                handleClickOpen={handleClickOpen}
+                                onClose={handleClose}
+                                createGroup={createGroup}
+                                groupNames={groupNames}
+                                changeSelectedGroup={changeSelectedGroup}
+                            >
+                            </GroupsBox>
                         </Grid>
 
-
                         <Grid item xs={12} sm={7} md={9} xl={9} spacing={3} >
-                            <Box >
-                                <Box id="scrollBox" height={height - 156} style={{ overflow: 'auto' }}>
-                                    {generateMessages}
-                                </Box>
-                                <Box>
-                                    <Grid container >
-                                        <Grid item xs={10}>
-                                            <TextField
-                                                id="multiline-static"
-                                                fullWidth
-                                                multiline
-                                                rows="2"
-                                                InputLabelProps={{
-                                                    shrink: true
-                                                }}
-                                                placeholder="Start writing your message"
-                                                className={classes.textField}
+                            <MessageBox
+                                sendMessage={sendMessage}
+                                generateMessages={generateMessages}
+                            >
 
-                                            />
-                                        </Grid>
-                                        <Grid item xs={2}>
-                                            <Button color="primary" onClick={sendMessage}>
-                                                Send
-                                    </Button>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            </Box>
+                            </MessageBox>
                         </Grid>
                     </Grid >
                 </div>
             ) : (
-                    <div>
-                        <Dialog open={true} aria-labelledby="form-dialog-title">
-                            <DialogTitle id="form-dialog-title">Login</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText>
-                                    Install Metamask to use PointerDapp
-                            </DialogContentText>
-
-                            </DialogContent>
-
-                        </Dialog>
-                    </div>
+                    ErrorDialog()
                 )}
-
-
-
-
 
         </div >
     );
