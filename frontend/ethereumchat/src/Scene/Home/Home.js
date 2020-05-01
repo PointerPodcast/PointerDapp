@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { AppBar, Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Message from "./Components/Message"
 import useWindowDimensions from '../../Hooks/useWindowDimension';
@@ -40,35 +39,56 @@ const Home = () => {
     const [selectedGroup, setSelectedGroup] = useState('')
     const [username, setUsername] = useState('')
     const [messages, setMessages] = useState([])
-    const [lastGroupBlock, setLastGroupBlock] = useState({})
     const [openLogin, setOpenLogin] = useState(false);
     const [loginUsername, setLoginUsername] = useState('');
     const [avatarLink, setAvatarLink] = useState('');
     const [isMetamaskInstalled, setMetamask] = useState(true);
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
-    const [firstLoad, setFirstLoad] = useState(true);
+
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS);
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
     var list = []
-    var link;
 
-    /*
-    window.addEventListener('load', () => {
+    
+    window.addEventListener('load', ()=> {
+        web3.eth.net.isListening().then((listen) => {
+            if(listen)
+                Web3.givenProvider.enable().then((enabled) => {
+                    if(enabled){
+                        getUsernameMethod();
+                        subscribeToNewGroup();
+                        subscribeToGroupDeleted();
+                        getGroupsMethod();
+                    }
+                })
+        }).catch((e) => {
+            setMetamask(false);
+        })
     });
-    */
+
 
     function subscribeToNewGroup() {
-        const lastSynchedBlock = lastGroupBlock[TIME_MACHINE_ADDRESS];
         contract.events.NewGroup({
-            fromBlock: lastSynchedBlock,
-        }, function (error, event) {
-            web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[TIME_MACHINE_ADDRESS] = lastblock + 1); //sync according to latest block read
+            fromBlock: 0,
+        })
+        .on('data', function (event) {
             getGroupsMethod()
         })
+        .on('error', console.error)
     }
+
+    function subscribeToGroupDeleted(){
+        contract.events.GroupDeleted({
+            fromBlock: 0,
+        })
+        .on('data', function (event) {
+            getGroupsMethod();
+        })
+        .on('error', console.error)
+    }
+
 
     function getUsernameMethod() {
         web3.eth.getAccounts().then((accounts) =>
@@ -84,14 +104,16 @@ const Home = () => {
                         setOpenLogin(false)
                         var utf8Name = web3.utils.toUtf8(result)
 						var link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
-						setAvatarLink(link)
+					 	setAvatarLink(link) 
                     }
                 })
         );
     }
 
+
+
     function setUsernameMethod() {
-        web3.eth.getAccounts().then((accounts) =>
+        web3.eth.geAccounts().then((accounts) =>
             contract.methods
                 .setUsername(web3.utils.fromAscii(loginUsername))
                 .send({
@@ -125,8 +147,6 @@ const Home = () => {
                                 .getGroupName()
                                 .call({ from: accounts[0] })
                                 .then((result) => {
-                                    lastGroupBlock[groupAddress] = 0;
-                                    setLastGroupBlock(lastGroupBlock);
                                     subscribeToGroupEvent(groupAddress);
                                     return web3.utils.toUtf8(result);
                                 });
@@ -139,6 +159,81 @@ const Home = () => {
                 })
         );
     }
+
+    function showNotification(message) {
+        enqueueSnackbar(message);
+    };
+
+    function subscribeToGroupEvent(groupAddress) {
+        if (!isSubscribedGroupMessages[groupAddress]) {
+            const groupContract = new web3.eth.Contract(
+                GROUPS_ABI,
+                groupAddress
+            );
+            groupContract.events.Message({
+                fromBlock: 0,
+            })
+            .on('data', function (event) {
+                var message = web3.utils.toUtf8(event.returnValues.message)
+                var name = web3.utils.toUtf8(event.returnValues.from)
+                setMessages(messages => messages.concat({
+                    name: name,
+                    message: message,
+                    groupName: event.address,
+                    hash: event.transactionHash //QUESTO CI STA CHE POSSA ESSERE TOLTO
+                }));
+                web3.eth.getBlockNumber().then((lastblock) => {
+                    if (event.blockNumber === lastblock) {
+                        showNotification(name + ": " + message);
+                    }
+
+                });
+            })
+            .on('error', console.error)
+            isSubscribedGroupMessages[groupAddress] = true;
+            setSubscribedGroupMessages(isSubscribedGroupMessages);
+        }
+    }
+
+
+    function sendMessageMethod(message) {
+        const groupContract = new web3.eth.Contract(
+            GROUPS_ABI,
+            selectedGroup
+        );
+        web3.eth.getAccounts().then((accounts) =>
+            groupContract.methods
+                .sendEventMessage(web3.utils.fromAscii(message), false)
+                .send({
+                    from: accounts[0]
+                    //          gas: 1000000,
+                    //          gasPrice: '1'
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    var boxDiv = document.getElementById("scrollBox");
+                    boxDiv.scrollTop = boxDiv.scrollHeight;
+                })
+                .on("error", (error) => {
+                    console.log(error);
+                })
+        );
+    }
+
+    const sendMessage = () => {
+        var message = document.getElementById('multiline-static').value
+        if (message === '') {
+            alert("Please, write something.")
+            return
+        }
+        if (selectedGroup === '') {
+            alert("Please, Select a group.")
+            return
+        }
+        sendMessageMethod(message)
+        document.getElementById('multiline-static').value = ""
+    }
+
+
 
     const deleteGroup = async () => {
         if (selectedGroup === '') {
@@ -156,7 +251,6 @@ const Home = () => {
                     from: accounts[0],
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
-                    alert(groupName + "deleted!");
                     getGroupsMethod();
                 })
                 .on("error", (error) => {
@@ -186,97 +280,6 @@ const Home = () => {
         );
     }
 
-    function showNotification(message) {
-        enqueueSnackbar(message);
-    };
-
-    function subscribeToGroupEvent(groupAddress) {
-        if (!isSubscribedGroupMessages[groupAddress]) {
-            const groupContract = new web3.eth.Contract(
-                GROUPS_ABI,
-                groupAddress
-            );
-            const lastSynchedBlock = lastGroupBlock[groupAddress];
-            groupContract.events.Message({
-                fromBlock: lastSynchedBlock,
-            }, function (error, event) {
-                var message = web3.utils.toUtf8(event.returnValues.message)
-                var name = web3.utils.toUtf8(event.returnValues.from)
-                web3.eth.getBlockNumber().then((lastblock) => {
-                    lastGroupBlock[groupAddress] = lastblock + 1
-                    if (event.blockNumber == lastblock) {
-                        showNotification(name + ": " + message);
-                    }
-
-                });
-
-                setMessages(messages => messages.concat({
-                    name: name,
-                    message: message,
-                    groupName: event.address,
-                    hash: event.transactionHash //QUESTO CI STA CHE POSSA ESSERE TOLTO
-                }));
-
-            })
-            isSubscribedGroupMessages[groupAddress] = true;
-            setSubscribedGroupMessages(isSubscribedGroupMessages);
-        }
-    }
-
-    function sendMessageMethod(message) {
-        const groupContract = new web3.eth.Contract(
-            GROUPS_ABI,
-            selectedGroup
-        );
-        web3.eth.getAccounts().then((accounts) =>
-            groupContract.methods
-                .sendEventMessage(web3.utils.fromAscii(message), false)
-                .send({
-                    from: accounts[0]
-                    //          gas: 1000000,
-                    //          gasPrice: '1'
-                })
-                .on("confirmation", (confirmationNumber, receipt) => {
-                    var boxDiv = document.getElementById("scrollBox");
-                    boxDiv.scrollTop = boxDiv.scrollHeight;
-                })
-                .on("error", (error) => {
-                    console.log(error);
-                })
-        );
-    }
-
-
-    useEffect(() => {
-        async function setup() {
-            await getUsernameMethod();
-            getGroupsMethod();
-            subscribeToNewGroup();
-        }
-
-        web3.eth.net.isListening().then((s) => {
-            Web3.givenProvider.enable().then((res) => setup())
-        }).catch((e) => {
-            setMetamask(false);
-        })
-
-    }, [render]);
-
-
-    const sendMessage = () => {
-        var message = document.getElementById('multiline-static').value
-        if (message === '') {
-            alert("Please, write something.")
-            return
-        }
-        if (selectedGroup === '') {
-            alert("Please, Select a group.")
-            return
-        }
-        sendMessageMethod(message)
-        document.getElementById('multiline-static').value = ""
-    }
-
 
     const handleLoginClose = () => {
         if (loginUsername === '') {
@@ -295,7 +298,6 @@ const Home = () => {
     };
 
     const changeSelectedGroup = (groupAddress) => {
-        setFirstLoad(false)
         setSelectedGroup(groupAddress);
         var boxDiv = document.getElementById("scrollBox");
         boxDiv.scrollTop = boxDiv.scrollHeight;
@@ -304,7 +306,7 @@ const Home = () => {
 
     const generateMessages =
         messages.slice(0).map((value, _) => {
-            if (value.groupName === selectedGroup && list.indexOf(value.hash) === -1) {
+            if (value.groupName === selectedGroup && list.indexOf(value.hash) === -1){ 
                 list.push(value.hash)
                 var boxDiv = document.getElementById("scrollBox");
                 boxDiv.scrollTop = boxDiv.scrollHeight;
