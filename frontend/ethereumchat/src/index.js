@@ -1,18 +1,16 @@
+/* Import statements */
 import React from "react";
 import ReactDOM from "react-dom";
-import { Route, BrowserRouter as Router } from "react-router-dom";
-import * as serviceWorker from "./serviceWorker";
 
-import Home from "./Scene/Home/Home";
+/* App is the entry point to the React code.*/
+import App from "./App";
 
-const routing = (
-  <Router>
-    <div>
-      <Route exact path="/" component={Home} />
-    </div>
-  </Router>
+/* import BrowserRouter from 'react-router-dom' */
+import { BrowserRouter } from "react-router-dom";
+
+ReactDOM.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
+  document.getElementById("root")
 );
-ReactDOM.render(routing, document.getElementById("root"));
-
-
-serviceWorker.unregister();
