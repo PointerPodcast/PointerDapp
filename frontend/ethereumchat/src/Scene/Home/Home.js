@@ -34,7 +34,6 @@ const Home = () => {
     const classes = useStyles();
     const [open, setOpen] = useState(false);
     const [groupName, setGroupName] = useState('');
-    const [render, setRender] = React.useState(false);
     const [groupNames, setGroupNames] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('')
     const [username, setUsername] = useState('')
@@ -103,8 +102,8 @@ const Home = () => {
                         setUsername(web3.utils.toUtf8(result))
                         setOpenLogin(false)
                         var utf8Name = web3.utils.toUtf8(result)
-						var link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
-					 	setAvatarLink(link) 
+                        var link = 'https://avatars.dicebear.com/v2/identicon/:' + utf8Name + '.svg'
+                        setAvatarLink(link)
                     }
                 })
         );
@@ -326,8 +325,9 @@ const Home = () => {
                             <b>PointerDapp</b>
                         </Link>
                     </Typography>
-                    <Avatar src={avatarLink}> | </Avatar>
-                    <Typography variant="h6" color="inherit" className={classes.title}>
+                    <Avatar src={avatarLink} > </Avatar>
+
+                    <Typography color="inherit" style={{ paddingLeft: '0.5em' }}>
                         <b>{username}</b>
                     </Typography>
                 </Toolbar>
