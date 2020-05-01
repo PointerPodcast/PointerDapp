@@ -196,7 +196,12 @@ const Home = () => {
         }
 
         web3.eth.net.isListening().then((s) => {
-            setup();
+            web3.eth.getAccounts(function (err, accounts) {
+                if (err == null && accounts.length != 0)
+                    setup()
+            });
+
+
         }).catch((e) => {
 
         })
