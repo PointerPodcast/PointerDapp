@@ -48,11 +48,17 @@ const Home = () => {
     const [lastGroupBlock, setLastGroupBlock] = useState({})
     const [openLogin, setOpenLogin] = React.useState(false);
     const [loginUsername, setLoginUsername] = useState('');
+    const [isMetamaskInstalled, setMetamask] = useState(false);
+    const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
+
     var list = []
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS)
-    const [isMetamaskInstalled, setMetamask] = useState(false);
 
+    /*
+    window.addEventListener('load', () => {
+    });
+    */
 
     function getUsernameMethod() {
         web3.eth.getAccounts().then((accounts) =>
@@ -108,6 +114,7 @@ const Home = () => {
                                 .then((result) => {
                                     lastGroupBlock[groupAddress] = 0;
                                     setLastGroupBlock(lastGroupBlock);
+                                    subscribeToGroupEvent(groupAddress);
                                     return web3.utils.toUtf8(result);
                                 });
                             return { groupName: name, addressG: groupAddress }
@@ -140,27 +147,31 @@ const Home = () => {
         );
     }
 
+    function subscribeToGroupEvent(groupAddress){
+        if(!isSubscribedGroupMessages[groupAddress]){
+            console.log(groupAddress)
+            const groupContract = new web3.eth.Contract(
+                GROUPS_ABI,
+                groupAddress
+            );
+            const lastSynchedBlock = lastGroupBlock[groupAddress];
+            groupContract.events.Message({
+                fromBlock: lastSynchedBlock,
+            }, function (error, event) {
+                web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[groupAddress] = lastblock+1); //sync according to latest block read
+                setMessages(messages => messages.concat({
+                    name: web3.utils.toUtf8(event.returnValues.from),
+                    message: web3.utils.toUtf8(event.returnValues.message),
+                    groupName: event.address,
+                    hash: event.transactionHash //QUESTO CI STA CHE POSSA ESSERE TOLTO
+                }));
 
-    function refreshGroupMessage(groupAddress) {
-        const groupContract = new web3.eth.Contract(
-            GROUPS_ABI,
-            groupAddress
-        );
-        console.log(lastGroupBlock);
-        const lastSynchedBlock = lastGroupBlock[groupAddress];
-        groupContract.events.Message({
-            fromBlock: lastSynchedBlock,
-        }, function (error, event) {
-            web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[groupAddress] = lastblock); //sync according to latest block read
-            setMessages(messages => messages.concat({
-                name: web3.utils.toUtf8(event.returnValues.from),
-                message: web3.utils.toUtf8(event.returnValues.message),
-                groupName: event.address,
-                hash: event.transactionHash
-            }));
-
-        })
+            })
+            isSubscribedGroupMessages[groupAddress] = true;
+            setSubscribedGroupMessages(isSubscribedGroupMessages);
+        }
     }
+
 
     function sendMessageMethod(message) {
         const groupContract = new web3.eth.Contract(
@@ -176,7 +187,6 @@ const Home = () => {
                     //          gasPrice: '1'
                 })
                 .on("confirmation", (confirmationNumber, receipt) => {
-                    console.log("Inviato")
                     var boxDiv = document.getElementById("scrollBox");
                     boxDiv.scrollTop = boxDiv.scrollHeight;
                 })
@@ -196,12 +206,12 @@ const Home = () => {
         }
 
         web3.eth.net.isListening().then((s) => {
-            setup();
+            Web3.givenProvider.enable().then((res) => setup())
         }).catch((e) => {
 
         })
 
-    }, [getGroupsMethod, getUsernameMethod, render]);
+    }, [ render]);
 
 
     const sendMessage = () => {
@@ -238,7 +248,6 @@ const Home = () => {
 
     const changeSelectedGroup = (groupAddress) => {
         setSelectedGroup(groupAddress);
-        refreshGroupMessage(groupAddress);
         var boxDiv = document.getElementById("scrollBox");
         boxDiv.scrollTop = boxDiv.scrollHeight;
     };
