@@ -13,7 +13,9 @@ const useStyles = makeStyles((theme) => ({
     },
     container: {
         paddingTop: theme.spacing(7),
-    }
+    },
+
+
 }));
 
 
@@ -22,7 +24,7 @@ const MessageBox = (props) => {
     const { height, width } = useWindowDimensions();
 
     return (
-        <Box >
+        <Box className={classes.root} >
             <Box id="scrollBox" height={height - 156} style={{ overflow: 'auto' }}>
                 {props.generateMessages}
             </Box>
