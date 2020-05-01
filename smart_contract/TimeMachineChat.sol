@@ -10,6 +10,12 @@ contract TimeMachineChat is ITimeMachineChat{
   //We are going to use Registered event as a variable. 
   event Registered();
 
+  //A new group has been created -event
+  event NewGroup();
+
+  //A group has been deleted -event
+  event GroupDeleted();
+
   //owner is an address. The keyword "payable" means that owner can receive ether. 
   address payable owner; 
 
@@ -89,6 +95,7 @@ contract TimeMachineChat is ITimeMachineChat{
     Group g = new Group(msg.sender, _groupName, groups.length); 
     groups.push(g);
     existGroup[_groupName] = true;
+    emit NewGroup();
   }
 
 
@@ -102,6 +109,7 @@ contract TimeMachineChat is ITimeMachineChat{
     groups[pos] = lastGroup; //swap
     lastGroup.updatePosition(pos); //update lastGroup position
     groups.pop(); //delete the last element
+    emit GroupDeleted(); 
     return lastGroup.getPosition();
   }
 
