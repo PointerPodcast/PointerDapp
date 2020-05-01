@@ -14,7 +14,7 @@ interface ITimeMachineChat{
     
     function createGroup(bytes32 _groupName) external virtual;
     
-    function deleteGroup() external virtual returns(uint);
+    function deleteGroup() external virtual;
     
     function sayThanks() external payable virtual;
     

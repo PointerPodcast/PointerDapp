@@ -99,18 +99,19 @@ contract TimeMachineChat is ITimeMachineChat{
   }
 
 
-  function deleteGroup() external override returns(uint){
+  function deleteGroup() external override{
     uint pos = IGroup(msg.sender).getPosition();
     require(address(groups[pos]) == msg.sender); //Checks that the sender is the groups itself, otherwise, anyone could delete a group, even if this address is not the group's admin 
     bytes32 groupName = groups[pos].getGroupName();
     delete groups[pos];
     existGroup[groupName] = false;
-    IGroup lastGroup = groups[groups.length - 1];
-    groups[pos] = lastGroup; //swap
-    lastGroup.updatePosition(pos); //update lastGroup position
+    if(groups.length > 1){
+        IGroup lastGroup = groups[groups.length - 1];
+        groups[pos] = lastGroup; //swap
+        lastGroup.updatePosition(pos); //update lastGroup position
+    }
     groups.pop(); //delete the last element
     emit GroupDeleted(); 
-    return lastGroup.getPosition();
   }
 
   //Donate some value to this smartcontract
@@ -129,3 +130,4 @@ contract TimeMachineChat is ITimeMachineChat{
   }
 
 }
+
