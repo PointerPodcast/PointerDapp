@@ -46,7 +46,6 @@ const Home = () => {
     const [avatarLink, setAvatarLink] = useState('');
     const [isMetamaskInstalled, setMetamask] = useState(true);
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
-    const [firstLoad, setFirstLoad] = useState(true);
 
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS);
@@ -83,8 +82,8 @@ const Home = () => {
                         setUsername(web3.utils.toUtf8(result))
                         setOpenLogin(false)
                         var utf8Name = web3.utils.toUtf8(result)
-						var link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
-						setAvatarLink(link)
+                        var link = 'https://avatars.dicebear.com/v2/identicon/:' + utf8Name + '.svg'
+                        setAvatarLink(link)
                     }
                 })
         );
@@ -147,7 +146,7 @@ const Home = () => {
         }
         const groupContract = new web3.eth.Contract(
             GROUPS_ABI,
-            selectedGroup 
+            selectedGroup
         );
         web3.eth.getAccounts().then((accounts) =>
             groupContract.methods
@@ -203,11 +202,10 @@ const Home = () => {
                 var message = web3.utils.toUtf8(event.returnValues.message)
                 var name = web3.utils.toUtf8(event.returnValues.from)
                 web3.eth.getBlockNumber().then((lastblock) => {
-                    lastGroupBlock[groupAddress] = lastblock + 1
+                    lastGroupBlock[groupAddress] = lastblock + 1;
                     if (event.blockNumber == lastblock) {
                         showNotification(name + ": " + message);
                     }
-
                 });
 
                 setMessages(messages => messages.concat({
@@ -295,7 +293,6 @@ const Home = () => {
     };
 
     const changeSelectedGroup = (groupAddress) => {
-        setFirstLoad(false)
         setSelectedGroup(groupAddress);
         var boxDiv = document.getElementById("scrollBox");
         boxDiv.scrollTop = boxDiv.scrollHeight;
@@ -324,8 +321,9 @@ const Home = () => {
                             <b>PointerDapp</b>
                         </Link>
                     </Typography>
-                    <Avatar src={avatarLink}> | </Avatar>
-                    <Typography variant="h6" color="inherit" className={classes.title}>
+                    <Avatar src={avatarLink} > </Avatar>
+
+                    <Typography color="inherit" style={{ paddingLeft: '0.5em' }}>
                         <b>{username}</b>
                     </Typography>
                 </Toolbar>
