@@ -272,7 +272,6 @@ const Home = () => {
 
     const handleClose = () => {
         setOpen(false);
-        render ? setRender(false) : setRender(true);
     };
 
     const changeSelectedGroup = (groupAddress) => {
