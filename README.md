@@ -12,7 +12,7 @@ We developed a distributed chat, you can create (or delete) groups and you can s
 <table>
   <tr>
     <td align="center"><a href="https://github.com/Brotherhood94"><img src="https://avatars1.githubusercontent.com/u/24278256?s=460&u=4d5cd3b6125436e39d1a543c7b1d632960b70f3e&v=4" width="100px;" alt="Alessandro Berti"/><br /><sub><b>Alessandro Berti</b></sub></a><br /><a  title="Developer">👨‍💻</a></td>
-    <td align="center"><a href="lucacorbucci.me"><img src="https://avatars0.githubusercontent.com/u/2198490?s=460&u=e2a9f6ee366490f639d9e9e96fb62e5eee39c69e&v=4" width="100px;" alt="Luca Corbucci"/><br /><sub><b>Luca Corbucci</b></sub></a><br /><a title="Developer">👨‍💻</a></td>
+    <td align="center"><a href="https://github.com/lucacorbucci"><img src="https://avatars0.githubusercontent.com/u/2198490?s=460&u=e2a9f6ee366490f639d9e9e96fb62e5eee39c69e&v=4" width="100px;" alt="Luca Corbucci"/><br /><sub><b>Luca Corbucci</b></sub></a><br /><a title="Developer">👨‍💻</a></td>
     <td align="center"><a href="https://github.com/eugypalu"><img src="https://avatars2.githubusercontent.com/u/10235567?s=460&u=3b0ab03757c580842375f861d93efc136bd38741&v=4" width="100px;" alt="Eugenio Paluello"/><br /><sub><b>Eugenio Paluello</b></sub></a><br /><a  title="Developer">👨‍💻</a></td>
 
   </tr>
