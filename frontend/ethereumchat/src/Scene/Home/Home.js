@@ -221,8 +221,6 @@ const Home = () => {
         }
     }
 
-
-
     function sendMessageMethod(message) {
         const groupContract = new web3.eth.Contract(
             GROUPS_ABI,
@@ -303,7 +301,7 @@ const Home = () => {
 
 
     const generateMessages =
-        messages.slice(0).reverse().map((value, _) => {
+        messages.slice(0).map((value, _) => {
             if (value.groupName === selectedGroup && list.indexOf(value.hash) === -1) {
                 list.push(value.hash)
                 var boxDiv = document.getElementById("scrollBox");
