@@ -35,7 +35,7 @@ You can try our application using the following link: http://pointerdapp.it:3000
 
 To try our application you need to install Metamask in your browser, you can use this extension in Chrome, Firefox and Brave https://metamask.io.
 
-Our smart contracts are deployed on the Rinkeby test net, to use all the features of the distributed application you need an address and you have to charge your account using this [link](htps://faucet.rinkeby.io).
+Our smart contracts are deployed on the Rinkeby test net, to use all the features of the distributed application you need an address and you have to charge your account using this htps://faucet.rinkeby.io.
 
 # Contributing
 
