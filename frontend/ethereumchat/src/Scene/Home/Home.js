@@ -55,6 +55,15 @@ const Home = () => {
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS)
 
+    function subscribeToNewGroup(){
+        const lastSynchedBlock = lastGroupBlock[TIME_MACHINE_ADDRESS];
+        contract.events.NewGroup({
+            fromBlock: lastSynchedBlock,
+        }, function (error, event) {
+            web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[TIME_MACHINE_ADDRESS] = lastblock+1); //sync according to latest block read
+            getGroupsMethod()
+        })
+    }
     /*
     window.addEventListener('load', () => {
     });
@@ -122,6 +131,27 @@ const Home = () => {
                     ).then(function (results) {
                         setGroupNames(results);
                     });
+                })
+        );
+    }
+
+    const deleteGroup = async () => {
+        if (groupName === '') {
+            alert("Select a Group");
+            return;
+        }
+        web3.eth.getAccounts().then((accounts) =>
+            contract.methods
+                .closeGroup()
+                .send({
+                    from: accounts[0],
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    alert(groupName + "deleted!");
+                    getGroupsMethod();
+                })
+                .on("error", (error) => {
+                    console.log(error);
                 })
         );
     }
@@ -200,8 +230,9 @@ const Home = () => {
     useEffect(() => {
         async function setup() {
 
-            getUsernameMethod()
-            getGroupsMethod()
+            getUsernameMethod();
+            getGroupsMethod();
+            subscribeToNewGroup();
             setMetamask(true);
         }
 
@@ -304,17 +335,22 @@ const Home = () => {
 
 
                     <Grid container spacing={1} className={classes.container}>
-                        <Grid item xs={12} sm={5} md={3} xl={3}>
+                        <Grid item xs={12} sm={5} md={3} xl={3} spacing={10}>
                             <Container>
-                                <Button variant="contained" color="primary" onClick={handleClickOpen}>
-                                    Add Group
-                        </Button>
+                                <Grid item spacing={2}>
+                                    <Button variant="contained" color="primary" onClick={handleClickOpen}>
+                                        Add Group
+                                    </Button>
+                                    <Button variant="contained" color="secondary" size="small"  onClick={handleClickOpen}>
+                                        Delete Group
+                                    </Button>
+                                </Grid>
                                 <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
                                     <DialogTitle id="form-dialog-title">Create a new Group</DialogTitle>
                                     <DialogContent>
                                         <DialogContentText>
                                             Insert the group name:
-                                </DialogContentText>
+                                        </DialogContentText>
                                         <TextField
                                             autoFocus
                                             id="name"
@@ -327,10 +363,10 @@ const Home = () => {
                                     <DialogActions>
                                         <Button onClick={handleClose} color="primary">
                                             Cancel
-                                </Button>
+                                        </Button>
                                         <Button onClick={createGroup} color="primary">
                                             Create Group
-                                 </Button>
+                                        </Button>
                                     </DialogActions>
                                 </Dialog>
 
