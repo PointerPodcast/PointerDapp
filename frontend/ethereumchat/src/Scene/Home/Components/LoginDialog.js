@@ -6,13 +6,15 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import Typography from '@material-ui/core/Typography';
 
 
 const LoginDialog = (props) => {
     return (
         <div>
             <Dialog open={props.openLogin} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">Login</DialogTitle>
+                <DialogTitle id="form-dialog-title" style={{ backgroundColor: 'black', color: 'white' }} fontWeight="fontWeightBold">Join PointerDapp!</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Insert your username to use the chat!
@@ -27,9 +29,8 @@ const LoginDialog = (props) => {
                     />
                 </DialogContent>
                 <DialogActions>
-
-                    <Button onClick={props.handleLoginClose} color="primary">
-                        Login
+                    <Button onClick={props.handleLoginClose} color="secondary"  endIcon={<FavoriteIcon/>} >
+                        SignUp
                     </Button>
                 </DialogActions>
             </Dialog>

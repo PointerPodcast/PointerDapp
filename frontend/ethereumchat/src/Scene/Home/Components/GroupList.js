@@ -17,7 +17,7 @@ const GroupList = (props) => {
     return (
         <List component="nav" className={classes.root} aria-label="contacts">
             {props.groupNames.map((value, index) => {
-                return <GroupListItem name={value.groupName} changeGroup={props.changeGroup} address={value.addressG}></GroupListItem>
+                return <GroupListItem name={value.groupName} changeGroup={props.changeGroup} address={value.addressG} avatar={value.avatar}></GroupListItem>
             })}
         </List>
     );

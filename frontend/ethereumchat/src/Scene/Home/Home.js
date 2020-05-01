@@ -4,6 +4,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { AppBar, Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Avatar from '@material-ui/core/Avatar';
 import Message from "./Components/Message"
 import useWindowDimensions from '../../Hooks/useWindowDimension';
 import Web3 from "web3";
@@ -16,8 +17,9 @@ import ErrorDialog from '../Home/Components/ErrorDialog';
 import LoginDialog from '../Home/Components/LoginDialog';
 import MessageBox from '../Home/Components/MessageBox';
 import GroupsBox from '../Home/Components/GroupsBox';
-
-
+import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
+import Link from '@material-ui/core/Link';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = makeStyles((theme) => ({
     title: {
@@ -31,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Home = () => {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
     const [groupName, setGroupName] = useState('');
     const [render, setRender] = React.useState(false);
     const [groupNames, setGroupNames] = useState([]);
@@ -39,14 +41,21 @@ const Home = () => {
     const [username, setUsername] = useState('')
     const [messages, setMessages] = useState([])
     const [lastGroupBlock, setLastGroupBlock] = useState({})
-    const [openLogin, setOpenLogin] = React.useState(false);
+    const [openLogin, setOpenLogin] = useState(false);
     const [loginUsername, setLoginUsername] = useState('');
-    const [isMetamaskInstalled, setMetamask] = useState(false);
+    const [avatarLink, setAvatarLink] = useState('');
+    const [isMetamaskInstalled, setMetamask] = useState(true);
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
 
     var list = []
+	var link;
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS)
+    
+    /*
+    window.addEventListener('load', () => {
+    });
+    */
 
     function subscribeToNewGroup(){
         const lastSynchedBlock = lastGroupBlock[TIME_MACHINE_ADDRESS];
@@ -57,10 +66,6 @@ const Home = () => {
             getGroupsMethod()
         })
     }
-    /*
-    window.addEventListener('load', () => {
-    });
-    */
 
     function getUsernameMethod() {
         web3.eth.getAccounts().then((accounts) =>
@@ -74,6 +79,9 @@ const Home = () => {
                     else {
                         setUsername(web3.utils.toUtf8(result))
                         setOpenLogin(false)
+                        var utf8Name = web3.utils.toUtf8(result)
+						link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
+						setAvatarLink(link)
                     }
                 })
         );
@@ -119,7 +127,8 @@ const Home = () => {
                                     subscribeToGroupEvent(groupAddress);
                                     return web3.utils.toUtf8(result);
                                 });
-                            return { groupName: name, addressG: groupAddress }
+                            var gAvatar = "https://avatars.dicebear.com/v2/bottts/"+name+".svg"
+                            return { groupName: name, addressG: groupAddress, avatar: gAvatar}
                         })
                     ).then(function (results) {
                         setGroupNames(results);
@@ -129,6 +138,7 @@ const Home = () => {
     }
 
     const deleteGroup = async () => {
+        console.log("CLICCAMI TUTTO")
         if (groupName === '') {
             alert("Select a Group");
             return;
@@ -172,7 +182,6 @@ const Home = () => {
 
     function subscribeToGroupEvent(groupAddress) {
         if (!isSubscribedGroupMessages[groupAddress]) {
-            console.log(groupAddress)
             const groupContract = new web3.eth.Contract(
                 GROUPS_ABI,
                 groupAddress
@@ -222,17 +231,15 @@ const Home = () => {
 
     useEffect(() => {
         async function setup() {
-
-            getUsernameMethod();
+            await getUsernameMethod();
             getGroupsMethod();
             subscribeToNewGroup();
-            setMetamask(true);
         }
 
         web3.eth.net.isListening().then((s) => {
             Web3.givenProvider.enable().then((res) => setup())
         }).catch((e) => {
-
+            setMetamask(false);
         })
 
     }, [render]);
@@ -281,7 +288,8 @@ const Home = () => {
                 list.push(value.hash)
                 var boxDiv = document.getElementById("scrollBox");
                 boxDiv.scrollTop = boxDiv.scrollHeight;
-                return (<Message sender={value.name} body={value.message}></Message>)
+				var userLinkAvatar = 'https://avatars.dicebear.com/v2/identicon/:'+value.name+'.svg'
+                return (<Message sender={value.name} body={value.message} avatar={userLinkAvatar}></Message>)
             }
         })
 
@@ -289,26 +297,32 @@ const Home = () => {
     return (
         <div className={classes.root}>
             <AppBar>
-                <Toolbar variant="dense">
-
-                    <Typography variant="h6" color="inherit" className={classes.title}>
-                        <b>PointerDapp</b>
-                    </Typography>
-                    <Button color="inherit">{username}</Button>
+				<Toolbar variant="dense"  style={{ backgroundColor: 'teal', color: 'white' }} >
+					<RecordVoiceOverIcon/>
+					<Typography variant="h6" color="inherit" className={classes.title}>
+						<Link href="https://pointerpodcast.it" color="inherit" className={classes.title}>
+							<b>PointerDapp</b>
+						</Link>
+					</Typography>
+					<Avatar  src={avatarLink}> | </Avatar>
+					<Typography variant="h6" color="inherit" className={classes.title}>
+						<b>{username}</b>
+					</Typography>
                 </Toolbar>
+                <LinearProgress  color="secondary" />
             </AppBar>
             {isMetamaskInstalled ? (
                 <div>
                     <LoginDialog openLogin={openLogin} handleLoginClose={handleLoginClose} setLoginUsername={setLoginUsername}></LoginDialog>
-
                     <Grid container spacing={1} className={classes.container}>
                         <Grid item xs={12} sm={5} md={3} xl={3}>
                             <GroupsBox
                                 setGroupName={setGroupName}
                                 open={open}
                                 handleClickOpen={handleClickOpen}
-                                onClose={handleClose}
+                                handleClickClose={handleClose}
                                 createGroup={createGroup}
+                                deleteGroup={deleteGroup}
                                 groupNames={groupNames}
                                 changeSelectedGroup={changeSelectedGroup}
                             >
@@ -329,6 +343,7 @@ const Home = () => {
                     ErrorDialog()
                 )}
 
+            <LinearProgress  color="primary" />
         </div >
     );
 }

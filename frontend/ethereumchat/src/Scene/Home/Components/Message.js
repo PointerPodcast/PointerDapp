@@ -10,10 +10,10 @@ export default function Message(props) {
         <Grid container spacing={2}>
             <Grid item xs={12} style={{ padding: 20 }}>
                 <Grid container spacing={2}>
-                    <Grid item><Avatar>H</Avatar></Grid>
+                    <Grid item><Avatar src={props.avatar}/></Grid>
                     <Grid item>
                         <Typography component="div">
-                            <Box fontWeight="fontWeightMedium" fontSize={16}>
+                            <Box fontWeight="fontWeightBold" fontSize={16}>
                                 {props.sender}
                             </Box>
                             <Box fontWeight="fontWeightRegular" fontSize={12}>
