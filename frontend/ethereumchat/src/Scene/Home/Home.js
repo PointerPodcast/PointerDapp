@@ -19,7 +19,6 @@ import MessageBox from '../Home/Components/MessageBox';
 import GroupsBox from '../Home/Components/GroupsBox';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 import Link from '@material-ui/core/Link';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
@@ -330,7 +329,6 @@ const Home = () => {
                         <b>{username}</b>
                     </Typography>
                 </Toolbar>
-                <LinearProgress color="secondary" />
             </AppBar>
             {isMetamaskInstalled ? (
                 <div>
@@ -364,9 +362,8 @@ const Home = () => {
             ) : (
                     ErrorDialog()
                 )}
-
-            <LinearProgress color="primary" />
         </div >
+
     );
 }
 export default Home;
