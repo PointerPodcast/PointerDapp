@@ -206,16 +206,7 @@ const Home = () => {
         }
 
         web3.eth.net.isListening().then((s) => {
-<<<<<<< HEAD
             Web3.givenProvider.enable().then((res) => setup())
-=======
-            web3.eth.getAccounts(function (err, accounts) {
-                if (err == null && accounts.length != 0)
-                    setup()
-            });
-
-
->>>>>>> e837056bd0486e95806a0ffff4bbc0c5b2401deb
         }).catch((e) => {
 
         })
