@@ -33,7 +33,7 @@ const GroupsBox = (props) => {
                 <DialogContent>
                     <DialogContentText>
                         Insert the pointer name:
-                                </DialogContentText>
+                    </DialogContentText>
                     <TextField
                         autoFocus
                         id="name"
@@ -46,10 +46,10 @@ const GroupsBox = (props) => {
                 <DialogActions>
                     <Button onClick={props.handleClickClose} color="primary">
                         Cancel
-                                </Button>
+                    </Button>
                     <Button onClick={props.createGroup} color="primary">
                         Create Pointer
-                                 </Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
 

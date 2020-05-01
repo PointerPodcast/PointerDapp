@@ -48,7 +48,6 @@ const Home = () => {
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
 
     var list = []
-	var link;
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS)
     
@@ -80,7 +79,7 @@ const Home = () => {
                         setUsername(web3.utils.toUtf8(result))
                         setOpenLogin(false)
                         var utf8Name = web3.utils.toUtf8(result)
-						link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
+						var link = 'https://avatars.dicebear.com/v2/identicon/:'+utf8Name+'.svg'
 						setAvatarLink(link)
                     }
                 })
@@ -138,13 +137,16 @@ const Home = () => {
     }
 
     const deleteGroup = async () => {
-        console.log("CLICCAMI TUTTO")
-        if (groupName === '') {
+        if (selectedGroup === '') {
             alert("Select a Group");
             return;
         }
+        const groupContract = new web3.eth.Contract(
+            GROUPS_ABI,
+            selectedGroup 
+        );
         web3.eth.getAccounts().then((accounts) =>
-            contract.methods
+            groupContract.methods
                 .closeGroup()
                 .send({
                     from: accounts[0],
@@ -250,7 +252,7 @@ const Home = () => {
         if (message === '')
             return
         if (selectedGroup === '') {
-            alert("Please, select a group.")
+            alert("Please, Select a group.")
             return
         }
         sendMessageMethod(message)
