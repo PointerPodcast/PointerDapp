@@ -11,10 +11,10 @@ contract TimeMachineChat is ITimeMachineChat{
   event Registered(bytes32 username);
 
   //A new group has been created -event
-  event NewGroup(bytes32 groupName);
+  event NewGroup(address groupAddress, bytes32 groupName);
 
   //A group has been deleted -event
-  event GroupDeleted(bytes32 groupName);
+  event GroupDeleted(address groupAddress, bytes32 groupName);
 
   //owner is an address. The keyword "payable" means that owner can receive ether. 
   address payable owner; 
@@ -95,13 +95,14 @@ contract TimeMachineChat is ITimeMachineChat{
     Group g = new Group(msg.sender, _groupName, groups.length); 
     groups.push(g);
     existGroup[_groupName] = true;
-    emit NewGroup(_groupName);
+    emit NewGroup(address(g),_groupName);
   }
 
 
   function deleteGroup() external override{
     uint pos = IGroup(msg.sender).getPosition();
-    require(address(groups[pos]) == msg.sender); //Checks that the sender is the groups itself, otherwise, anyone could delete a group, even if this address is not the group's admin 
+    address groupAddress = address(groups[pos]);
+    require(groupAddress == msg.sender); //Checks that the sender is the groups itself, otherwise, anyone could delete a group, even if this address is not the group's admin 
     bytes32 groupName = groups[pos].getGroupName();
     delete groups[pos];
     existGroup[groupName] = false;
@@ -111,7 +112,7 @@ contract TimeMachineChat is ITimeMachineChat{
         lastGroup.updatePosition(pos); //update lastGroup position
     }
     groups.pop(); //delete the last element
-    emit GroupDeleted(groupName); 
+    emit GroupDeleted(groupAddress, groupName); 
   }
 
   //Donate some value to this smartcontract
