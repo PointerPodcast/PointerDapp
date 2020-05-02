@@ -68,26 +68,6 @@ const Home = () => {
     });
 
 
-    function subscribeToNewGroup() {
-        contract.events.NewGroup({
-            fromBlock: 0,
-        })
-        .on('data', function (event) {
-            getGroupsMethod()
-        })
-        .on('error', console.error)
-    }
-
-    function subscribeToGroupDeleted(){
-        contract.events.GroupDeleted({
-            fromBlock: 0,
-        })
-        .on('data', function (event) {
-            getGroupsMethod();
-        })
-        .on('error', console.error)
-    }
-
 
     function getUsernameMethod() {
         web3.eth.getAccounts().then((accounts) =>
@@ -158,6 +138,27 @@ const Home = () => {
                 })
         );
     }
+
+    function subscribeToNewGroup() {
+        contract.events.NewGroup({
+            fromBlock: 0,
+        })
+        .on('data', function (event) {
+            getGroupsMethod()
+        })
+        .on('error', console.error)
+    }
+
+    function subscribeToGroupDeleted(){
+        contract.events.GroupDeleted({
+            fromBlock: 0,
+        })
+        .on('data', function (event) {
+            getGroupsMethod();
+        })
+        .on('error', console.error)
+    }
+
 
     function showNotification(message) {
         enqueueSnackbar(message, {
@@ -322,7 +323,7 @@ const Home = () => {
     return (
         <div className={classes.root}>
             <AppBar>
-                <Toolbar variant="dense" style={{ backgroundColor: 'teal', color: 'white' }} >
+                <Toolbar variant="dense" style={{ backgroundColor: 'black', color: 'white' }} >
                     <RecordVoiceOverIcon />
                     <Typography variant="h6" color="inherit" className={classes.title}>
                         <Link href="https://pointerpodcast.it" color="inherit" className={classes.title}>
