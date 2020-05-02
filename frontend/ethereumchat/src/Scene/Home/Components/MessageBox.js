@@ -36,12 +36,14 @@ const MessageBox = (props) => {
                             fullWidth
                             multiline
                             rows="2"
+                            inputProps={{
+                                maxLength: 32
+                            }} 
                             InputLabelProps={{
                                 shrink: true
                             }}
                             placeholder="Start writing your message"
                             className={classes.textField}
-
                         />
                     </Grid>
                     <Grid item xs={2}>

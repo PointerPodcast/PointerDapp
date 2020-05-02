@@ -43,6 +43,7 @@ const Home = () => {
     const [avatarLink, setAvatarLink] = useState('');
     const [isMetamaskInstalled, setMetamask] = useState(true);
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
+    const [lastSyncBlock, setLastSyncBlock] = useState({});
 
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -60,8 +61,7 @@ const Home = () => {
                         subscribeToNewGroup();
                         subscribeToGroupDeleted();
                         getGroupsMethod();
-                    }
-                })
+                    } })
         }).catch((e) => {
             setMetamask(false);
         })
@@ -112,7 +112,7 @@ const Home = () => {
 
 
     function setUsernameMethod() {
-        web3.eth.geAccounts().then((accounts) =>
+        web3.eth.getAccounts().then((accounts) =>
             contract.methods
                 .setUsername(web3.utils.fromAscii(loginUsername))
                 .send({
@@ -179,7 +179,7 @@ const Home = () => {
                     name: name,
                     message: message,
                     groupName: event.address,
-                    hash: event.transactionHash //QUESTO CI STA CHE POSSA ESSERE TOLTO
+                    hash: event.transactionHash 
                 }));
                 web3.eth.getBlockNumber().then((lastblock) => {
                     if (event.blockNumber === lastblock) {
@@ -253,6 +253,7 @@ const Home = () => {
                     getGroupsMethod();
                 })
                 .on("error", (error) => {
+                    alert("You are not the admin of this Pointer!");
                     console.log(error);
                 })
         );

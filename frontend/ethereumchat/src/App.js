@@ -20,7 +20,7 @@ export default function App() {
     // );
 
     return (
-        <SnackbarProvider>
+        <SnackbarProvider maxSnack={1}>
             <Route path="/" component={Home} />
         </SnackbarProvider>
 
