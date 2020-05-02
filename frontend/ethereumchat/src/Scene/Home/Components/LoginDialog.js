@@ -8,6 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
 
 
 const LoginDialog = (props) => {
@@ -17,7 +18,15 @@ const LoginDialog = (props) => {
                 <DialogTitle id="form-dialog-title" style={{ backgroundColor: 'black', color: 'white' }} fontWeight="fontWeightBold">Join PointerDapp!</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Insert your username to use the chat!
+                        <Typography variant="h6" color="inherit" fontWeight="fontWeightBold">
+                            Insert your username to use the chat!
+                        </Typography>
+                        <Link href="https://faucet.rinkeby.io/" color="inherit" >
+                            <Typography variant="h9" color="secondary" fontWeight="fontWeightBold">
+                                Don't you have enough gas? <u>Faucet!</u>
+
+                            </Typography>
+                        </Link>
                     </DialogContentText>
                     <TextField
                         autoFocus
