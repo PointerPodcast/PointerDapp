@@ -7,14 +7,14 @@ contract TimeMachineChat is ITimeMachineChat{
   //The indexed keyword will allow you to search these events using the indexed parameter as a filter
   event Thanks(address indexed from, uint amount);
 
-  //We are going to use Registered event as a variable. 
-  event Registered();
+  //New user signup
+  event Registered(bytes32 username);
 
   //A new group has been created -event
-  event NewGroup();
+  event NewGroup(bytes32 groupName);
 
   //A group has been deleted -event
-  event GroupDeleted();
+  event GroupDeleted(bytes32 groupName);
 
   //owner is an address. The keyword "payable" means that owner can receive ether. 
   address payable owner; 
@@ -69,7 +69,7 @@ contract TimeMachineChat is ITimeMachineChat{
   function setUsername(bytes32 _username) external addressAlreadyRegistered usernameTaken(_username) override{
     addressToUsername[msg.sender] = _username; 
     usernameToAddress[_username] = msg.sender;
-    emit Registered();
+    emit Registered(_username);
   }
  
   //Get Your username
@@ -95,7 +95,7 @@ contract TimeMachineChat is ITimeMachineChat{
     Group g = new Group(msg.sender, _groupName, groups.length); 
     groups.push(g);
     existGroup[_groupName] = true;
-    emit NewGroup();
+    emit NewGroup(_groupName);
   }
 
 
@@ -111,7 +111,7 @@ contract TimeMachineChat is ITimeMachineChat{
         lastGroup.updatePosition(pos); //update lastGroup position
     }
     groups.pop(); //delete the last element
-    emit GroupDeleted(); 
+    emit GroupDeleted(groupName); 
   }
 
   //Donate some value to this smartcontract
