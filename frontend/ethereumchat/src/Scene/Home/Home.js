@@ -101,6 +101,7 @@ const Home = () => {
                 .on("confirmation", (confirmationNumber, receipt) => {
                     setOpenLogin(false);
                     setUsername(loginUsername);
+                    window.location.reload();
                 })
                 .on("error", (error) => {
                     if (error.message.includes('Address already registered')) {
@@ -331,7 +332,6 @@ const Home = () => {
                         </Link>
                     </Typography>
                     <Avatar src={avatarLink} > </Avatar>
-
                     <Typography color="inherit" style={{ paddingLeft: '0.5em' }}>
                         <b>{username}</b>
                     </Typography>
