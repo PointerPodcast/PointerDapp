@@ -31,7 +31,7 @@ In this repo you can find two main folders:
 
 # How to try PointerDapp 🚀
 
-You can try our application using the following link: http://pointerdapp.it:3000.
+You can try our application using the following link: http://pointerdapp.it.
 
 To try our application you need to install Metamask in your browser, you can use this extension in Chrome, Firefox and Brave https://metamask.io.
 
