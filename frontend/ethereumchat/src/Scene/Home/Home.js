@@ -160,7 +160,9 @@ const Home = () => {
     }
 
     function showNotification(message) {
-        enqueueSnackbar(message);
+        enqueueSnackbar(message, {
+            variant: 'info'
+        });
     };
 
     function subscribeToGroupEvent(groupAddress) {

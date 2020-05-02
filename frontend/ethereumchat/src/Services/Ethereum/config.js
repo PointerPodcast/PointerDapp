@@ -1,21 +1,54 @@
-export const TIME_MACHINE_ADDRESS = "0x5cCb4A119fA8f0C6E097Fa3aA69256C34E11BFD4";
+export const TIME_MACHINE_ADDRESS = "0x6bd3a41b513817069a2a81373ee89d9d9db2ca70";
 
 export const TIME_MACHINE_ABI = [
 	{
 		"anonymous": false,
-		"inputs": [],
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "groupAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "groupName",
+				"type": "bytes32"
+			}
+		],
 		"name": "GroupDeleted",
 		"type": "event"
 	},
 	{
 		"anonymous": false,
-		"inputs": [],
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "groupAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "groupName",
+				"type": "bytes32"
+			}
+		],
 		"name": "NewGroup",
 		"type": "event"
 	},
 	{
 		"anonymous": false,
-		"inputs": [],
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "username",
+				"type": "bytes32"
+			}
+		],
 		"name": "Registered",
 		"type": "event"
 	},
