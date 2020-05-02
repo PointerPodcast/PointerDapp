@@ -20,7 +20,7 @@ export default function App() {
     // );
 
     return (
-        <SnackbarProvider maxSnack={1}>
+        <SnackbarProvider preventDuplicate >
             <Route path="/" component={Home} />
         </SnackbarProvider>
 

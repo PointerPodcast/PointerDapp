@@ -175,6 +175,7 @@ const Home = () => {
             .on('data', function (event) {
                 var message = web3.utils.toUtf8(event.returnValues.message)
                 var name = web3.utils.toUtf8(event.returnValues.from)
+                var groupName = web3.utils.toUtf8(event.returnValues.groupName)
                 setMessages(messages => messages.concat({
                     name: name,
                     message: message,
@@ -183,7 +184,7 @@ const Home = () => {
                 }));
                 web3.eth.getBlockNumber().then((lastblock) => {
                     if (event.blockNumber === lastblock) {
-                        showNotification(name + ": " + message);
+                        showNotification(groupName+ "* |" + name + ": " + message);
                     }
 
                 });
