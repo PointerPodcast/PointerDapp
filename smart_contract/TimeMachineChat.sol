@@ -105,7 +105,7 @@ contract TimeMachineChat is ITimeMachineChat{
     bytes32 groupName = groups[pos].getGroupName();
     delete groups[pos];
     existGroup[groupName] = false;
-    if(groups.length > 1){
+    if(pos < groups.length - 1){
         IGroup lastGroup = groups[groups.length - 1];
         groups[pos] = lastGroup; //swap
         lastGroup.updatePosition(pos); //update lastGroup position
