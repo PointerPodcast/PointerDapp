@@ -6,6 +6,8 @@ PointerDapp is a simple application that we developed to show you one possible u
 
 We developed a distributed chat, you can create (or delete) groups and you can send and receive messages.
 
+We presented our work during the GDG DevParty Together 2020, you can see [here](https://youtu.be/LyAzDwg5b-Q?t=17975) the video of our talk (in italian). Slides are available [here](https://github.com/PointerPodcast/PointerDapp/blob/master/Slides/GdgDevParty.pdf)
+
 <!-- ALL-CONTRIBUTORS-LIST:START -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
@@ -20,18 +22,19 @@ We developed a distributed chat, you can create (or delete) groups and you can s
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 # Code 👩‍💻
 
 In this repo you can find two main folders:
 
-- smart_contract: this folder contains the solidity code of the two contracts we wrote. 
-- frontend: this folder contains the frontend code written using ReactJS. 
+- smart_contract: this folder contains the solidity code of the two contracts we wrote.
+- frontend: this folder contains the frontend code written using ReactJS.
 
 # How to try PointerDapp 🚀
 
-You can try our application using the following link: http://pointerdapp.it.
+You can try our application using the following link: http://pointerdapp.it:3000.
 
 To try our application you need to install Metamask in your browser, you can use this extension in Chrome, Firefox and Brave https://metamask.io.
 
@@ -39,7 +42,7 @@ Our smart contracts are deployed on the Rinkeby test net, to use all the feature
 
 # Contributing
 
-This is a project that we developed for the [GDG DevParty](https://www.gdgdevparty.it), Feel free to open issues/pull requests to help us improve this project. 
+This is a project that we developed for the [GDG DevParty](https://www.gdgdevparty.it), Feel free to open issues/pull requests to help us improve this project.
 
 # License ©️
 
