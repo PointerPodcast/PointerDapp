@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { AppBar, Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Message from "./Components/Message"
 import useWindowDimensions from '../../Hooks/useWindowDimension';
@@ -35,39 +34,40 @@ const Home = () => {
     const classes = useStyles();
     const [open, setOpen] = useState(false);
     const [groupName, setGroupName] = useState('');
-    const [render, setRender] = React.useState(false);
     const [groupNames, setGroupNames] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('')
     const [username, setUsername] = useState('')
     const [messages, setMessages] = useState([])
-    const [lastGroupBlock, setLastGroupBlock] = useState({})
     const [openLogin, setOpenLogin] = useState(false);
     const [loginUsername, setLoginUsername] = useState('');
     const [avatarLink, setAvatarLink] = useState('');
     const [isMetamaskInstalled, setMetamask] = useState(true);
     const [isSubscribedGroupMessages, setSubscribedGroupMessages] = useState({});
+    const [lastSyncBlock, setLastSyncBlock] = useState({});
+
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(TIME_MACHINE_ABI, TIME_MACHINE_ADDRESS);
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
     var list = []
-    var link;
 
-    /*
-    window.addEventListener('load', () => {
-    });
-    */
-
-    function subscribeToNewGroup() {
-        const lastSynchedBlock = lastGroupBlock[TIME_MACHINE_ADDRESS];
-        contract.events.NewGroup({
-            fromBlock: lastSynchedBlock,
-        }, function (error, event) {
-            web3.eth.getBlockNumber().then((lastblock) => lastGroupBlock[TIME_MACHINE_ADDRESS] = lastblock + 1); //sync according to latest block read
-            getGroupsMethod()
+    
+    window.addEventListener('load', ()=> {
+        web3.eth.net.isListening().then((listen) => {
+            if(listen)
+                Web3.givenProvider.enable().then((enabled) => {
+                    if(enabled){
+                        getUsernameMethod();
+                        subscribeToNewGroup();
+                        subscribeToGroupDeleted();
+                        getGroupsMethod();
+                    } })
+        }).catch((e) => {
+            setMetamask(false);
         })
-    }
+    });
+
+
 
     function getUsernameMethod() {
         web3.eth.getAccounts().then((accounts) =>
@@ -89,6 +89,8 @@ const Home = () => {
         );
     }
 
+
+
     function setUsernameMethod() {
         web3.eth.getAccounts().then((accounts) =>
             contract.methods
@@ -99,6 +101,7 @@ const Home = () => {
                 .on("confirmation", (confirmationNumber, receipt) => {
                     setOpenLogin(false);
                     setUsername(loginUsername);
+                    window.location.reload();
                 })
                 .on("error", (error) => {
                     if (error.message.includes('Address already registered')) {
@@ -124,8 +127,6 @@ const Home = () => {
                                 .getGroupName()
                                 .call({ from: accounts[0] })
                                 .then((result) => {
-                                    lastGroupBlock[groupAddress] = 0;
-                                    setLastGroupBlock(lastGroupBlock);
                                     subscribeToGroupEvent(groupAddress);
                                     return web3.utils.toUtf8(result);
                                 });
@@ -139,54 +140,31 @@ const Home = () => {
         );
     }
 
-    const deleteGroup = async () => {
-        if (selectedGroup === '') {
-            alert("Select a Group");
-            return;
-        }
-        const groupContract = new web3.eth.Contract(
-            GROUPS_ABI,
-            selectedGroup
-        );
-        web3.eth.getAccounts().then((accounts) =>
-            groupContract.methods
-                .closeGroup()
-                .send({
-                    from: accounts[0],
-                })
-                .on("confirmation", (confirmationNumber, receipt) => {
-                    alert(groupName + "deleted!");
-                    getGroupsMethod();
-                })
-                .on("error", (error) => {
-                    console.log(error);
-                })
-        );
+    function subscribeToNewGroup() {
+        contract.events.NewGroup({
+            fromBlock: 0,
+        })
+        .on('data', function (event) {
+            getGroupsMethod()
+        })
+        .on('error', console.error)
     }
 
-    const createGroup = async () => {
-        if (groupName === '') {
-            alert("This field cannot be empty");
-            return;
-        }
-        web3.eth.getAccounts().then((accounts) =>
-            contract.methods
-                .createGroup(web3.utils.fromAscii(groupName))
-                .send({
-                    from: accounts[0],
-                })
-                .on("confirmation", (confirmationNumber, receipt) => {
-                    handleClose();
-                    getGroupsMethod();
-                })
-                .on("error", (error) => {
-                    console.log(error);
-                })
-        );
+    function subscribeToGroupDeleted(){
+        contract.events.GroupDeleted({
+            fromBlock: 0,
+        })
+        .on('data', function (event) {
+            getGroupsMethod();
+        })
+        .on('error', console.error)
     }
+
 
     function showNotification(message) {
-        enqueueSnackbar(message);
+        enqueueSnackbar(message, {
+            variant: 'info'
+        });
     };
 
     function subscribeToGroupEvent(groupAddress) {
@@ -195,31 +173,32 @@ const Home = () => {
                 GROUPS_ABI,
                 groupAddress
             );
-            const lastSynchedBlock = lastGroupBlock[groupAddress];
             groupContract.events.Message({
-                fromBlock: lastSynchedBlock,
-            }, function (error, event) {
+                fromBlock: 0,
+            })
+            .on('data', function (event) {
                 var message = web3.utils.toUtf8(event.returnValues.message)
                 var name = web3.utils.toUtf8(event.returnValues.from)
-                web3.eth.getBlockNumber().then((lastblock) => {
-                    lastGroupBlock[groupAddress] = lastblock + 1;
-                    if (event.blockNumber == lastblock) {
-                        showNotification(name + ": " + message);
-                    }
-                });
-
+                var groupName = web3.utils.toUtf8(event.returnValues.groupName)
                 setMessages(messages => messages.concat({
                     name: name,
                     message: message,
                     groupName: event.address,
-                    hash: event.transactionHash //QUESTO CI STA CHE POSSA ESSERE TOLTO
+                    hash: event.transactionHash 
                 }));
+                web3.eth.getBlockNumber().then((lastblock) => {
+                    if (event.blockNumber === lastblock) {
+                        showNotification(groupName+ "* |" + name + ": " + message);
+                    }
 
+                });
             })
+            .on('error', console.error)
             isSubscribedGroupMessages[groupAddress] = true;
             setSubscribedGroupMessages(isSubscribedGroupMessages);
         }
     }
+
 
     function sendMessageMethod(message) {
         const groupContract = new web3.eth.Contract(
@@ -244,23 +223,6 @@ const Home = () => {
         );
     }
 
-
-    useEffect(() => {
-        async function setup() {
-            await getUsernameMethod();
-            getGroupsMethod();
-            subscribeToNewGroup();
-        }
-
-        web3.eth.net.isListening().then((s) => {
-            Web3.givenProvider.enable().then((res) => setup())
-        }).catch((e) => {
-            setMetamask(false);
-        })
-
-    }, [render]);
-
-
     const sendMessage = () => {
         var message = document.getElementById('multiline-static').value
         if (message === '') {
@@ -273,6 +235,54 @@ const Home = () => {
         }
         sendMessageMethod(message)
         document.getElementById('multiline-static').value = ""
+    }
+
+
+
+    const deleteGroup = async () => {
+        if (selectedGroup === '') {
+            alert("Select a Group");
+            return;
+        }
+        const groupContract = new web3.eth.Contract(
+            GROUPS_ABI,
+            selectedGroup 
+        );
+        web3.eth.getAccounts().then((accounts) =>
+            groupContract.methods
+                .closeGroup()
+                .send({
+                    from: accounts[0],
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    getGroupsMethod();
+                })
+                .on("error", (error) => {
+                    alert("You are not the admin of this Pointer!");
+                    console.log(error);
+                })
+        );
+    }
+
+    const createGroup = async () => {
+        if (groupName === '') {
+            alert("This field cannot be empty");
+            return;
+        }
+        web3.eth.getAccounts().then((accounts) =>
+            contract.methods
+                .createGroup(web3.utils.fromAscii(groupName))
+                .send({
+                    from: accounts[0],
+                })
+                .on("confirmation", (confirmationNumber, receipt) => {
+                    handleClose();
+                    getGroupsMethod();
+                })
+                .on("error", (error) => {
+                    console.log(error);
+                })
+        );
     }
 
 
@@ -301,7 +311,7 @@ const Home = () => {
 
     const generateMessages =
         messages.slice(0).map((value, _) => {
-            if (value.groupName === selectedGroup && list.indexOf(value.hash) === -1) {
+            if (value.groupName === selectedGroup && list.indexOf(value.hash) === -1){ 
                 list.push(value.hash)
                 var boxDiv = document.getElementById("scrollBox");
                 boxDiv.scrollTop = boxDiv.scrollHeight;
@@ -314,7 +324,7 @@ const Home = () => {
     return (
         <div className={classes.root}>
             <AppBar>
-                <Toolbar variant="dense" style={{ backgroundColor: 'teal', color: 'white' }} >
+                <Toolbar variant="dense" style={{ backgroundColor: 'black', color: 'white' }} >
                     <RecordVoiceOverIcon />
                     <Typography variant="h6" color="inherit" className={classes.title}>
                         <Link href="https://pointerpodcast.it" color="inherit" className={classes.title}>
@@ -322,7 +332,6 @@ const Home = () => {
                         </Link>
                     </Typography>
                     <Avatar src={avatarLink} > </Avatar>
-
                     <Typography color="inherit" style={{ paddingLeft: '0.5em' }}>
                         <b>{username}</b>
                     </Typography>

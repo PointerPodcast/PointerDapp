@@ -7,14 +7,14 @@ contract TimeMachineChat is ITimeMachineChat{
   //The indexed keyword will allow you to search these events using the indexed parameter as a filter
   event Thanks(address indexed from, uint amount);
 
-  //We are going to use Registered event as a variable. 
-  event Registered();
+  //New user signup
+  event Registered(bytes32 username);
 
   //A new group has been created -event
-  event NewGroup();
+  event NewGroup(address groupAddress, bytes32 groupName);
 
   //A group has been deleted -event
-  event GroupDeleted();
+  event GroupDeleted(address groupAddress, bytes32 groupName);
 
   //owner is an address. The keyword "payable" means that owner can receive ether. 
   address payable owner; 
@@ -69,7 +69,7 @@ contract TimeMachineChat is ITimeMachineChat{
   function setUsername(bytes32 _username) external addressAlreadyRegistered usernameTaken(_username) override{
     addressToUsername[msg.sender] = _username; 
     usernameToAddress[_username] = msg.sender;
-    emit Registered();
+    emit Registered(_username);
   }
  
   //Get Your username
@@ -95,23 +95,24 @@ contract TimeMachineChat is ITimeMachineChat{
     Group g = new Group(msg.sender, _groupName, groups.length); 
     groups.push(g);
     existGroup[_groupName] = true;
-    emit NewGroup();
+    emit NewGroup(address(g),_groupName);
   }
 
 
   function deleteGroup() external override{
     uint pos = IGroup(msg.sender).getPosition();
-    require(address(groups[pos]) == msg.sender); //Checks that the sender is the groups itself, otherwise, anyone could delete a group, even if this address is not the group's admin 
+    address groupAddress = address(groups[pos]);
+    require(groupAddress == msg.sender); //Checks that the sender is the groups itself, otherwise, anyone could delete a group, even if this address is not the group's admin 
     bytes32 groupName = groups[pos].getGroupName();
     delete groups[pos];
     existGroup[groupName] = false;
-    if(groups.length > 1){
+    if(pos < groups.length - 1){
         IGroup lastGroup = groups[groups.length - 1];
         groups[pos] = lastGroup; //swap
         lastGroup.updatePosition(pos); //update lastGroup position
     }
     groups.pop(); //delete the last element
-    emit GroupDeleted(); 
+    emit GroupDeleted(groupAddress, groupName); 
   }
 
   //Donate some value to this smartcontract

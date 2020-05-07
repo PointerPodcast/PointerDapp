@@ -40,6 +40,9 @@ const GroupsBox = (props) => {
                         label="Pointer Name"
                         type="string"
                         fullWidth
+                        inputProps={{
+                            maxLength: 32
+                        }} 
                         onChange={e => props.setGroupName(e.target.value)}
                     />
                 </DialogContent>
